@@ -219,6 +219,9 @@ struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
 
 	pred->class = class;
 
+	// @587: Verify we create the 2-level combination predictor
+	info("587: Creating 2-level combination predictor");
+
 	switch (class) {
 	case BPred2LComb:
 		//Create two 2-level predictors and the meta predictor
@@ -275,8 +278,7 @@ struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
 }
 
 //------------------------------------------------------------------------------------------------------
-/* 587
- * Description:		Creates a two level branch predictor
+/* @587:	Create the two level branch predictor
  *
  * Inputs:		    bpred_class class type of predictor to create
  * 					l1size    level-1 table size
@@ -592,8 +594,9 @@ bpred_reg_stats(struct bpred_t *pred, /* branch predictor instance */
 			buf1, "%9.4f");
 }
 
-void
-bpred_after_priming(struct bpred_t *bpred)
+
+// @587: Note no call hierarchy for this function
+void bpred_after_priming(struct bpred_t *bpred)
 {
 	if (bpred == NULL)
 		return;
@@ -624,6 +627,7 @@ bpred_after_priming(struct bpred_t *bpred)
 
 
 
+//-------------------------------------------------------------------------------
 /*	predicts a branch direction
  *
  * 	Inputs:		bpred_dir_t *pred_dir: 	branch dir predictor inst
@@ -705,14 +709,14 @@ char * bpred_dir_lookup(struct bpred_dir_t *pred_dir, md_addr_t baddr)
  *
  *	Return:	md_addr_t       predicted branch target addr
  */
-md_addr_t bpred_lookup(struct bpred_t *pred,
-		md_addr_t baddr,
-		md_addr_t btarget,
-		enum md_opcode op,
-		int is_call,
-		int is_return,
-		struct bpred_update_t *dir_update_ptr,
-		int *stack_recover_idx)
+md_addr_t bpred_lookup(	struct bpred_t *pred,
+												md_addr_t baddr,
+												md_addr_t btarget,
+												enum md_opcode op,
+												int is_call,
+												int is_return,
+												struct bpred_update_t *dir_update_ptr,
+												int *stack_recover_idx)
 {
 	struct bpred_btb_ent_t *pbtb = NULL;
 	int index, i;
@@ -757,6 +761,10 @@ md_addr_t bpred_lookup(struct bpred_t *pred,
 		//      branch prediction
 	case BPred2LComb:
 		if ((MD_OP_FLAGS(op) & (F_CTRL|F_UNCOND)) != (F_CTRL|F_UNCOND)){
+
+			// @587: Print to test if we get we are using the 2LComb to do the prediction.
+			//			 Verified. Yes we do get here to do the prediction.
+			//info("587: 2LComb prediction lookup");
 
 			// Countess returned from the branch prediction
 			char *twolev_a, *twolev_b, *meta;

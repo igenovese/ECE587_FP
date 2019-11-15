@@ -225,8 +225,7 @@ exit_now(int exit_code)
   exit(exit_code);
 }
 
-int
-main(int argc, char **argv, char **envp)
+int main(int argc, char **argv, char **envp)
 {
   char *s;
   int i, exit_code;
@@ -248,6 +247,11 @@ main(int argc, char **argv, char **envp)
       /* special handling as longjmp cannot pass 0 */
       exit_now(exit_code-1);
     }
+
+  // @587: Check to see that we are at the start of the simulator
+	info("\n---------------------------------------------------------");
+	info("587: Hello I am alive.");
+
 
   /* register global options */
   sim_odb = opt_new(orphan_fn);
@@ -320,7 +324,8 @@ main(int argc, char **argv, char **envp)
     }
 
   /* opening banner */
-  banner(stderr, argc, argv);
+  // @587: No don't print the banner
+  //banner(stderr, argc, argv);
 
   if (help_me)
     {
@@ -414,6 +419,7 @@ main(int argc, char **argv, char **envp)
     exit_now(0);
 
   running = TRUE;
+
   sim_main();
 
   /* simulation finished early */
