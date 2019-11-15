@@ -287,10 +287,10 @@ struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
  * Returns:			Created branch predictor structure
  */
 struct bpred_dir_t * bpred_dir_create (	enum bpred_class class,
-		unsigned int l1size,
-		unsigned int l2size,
-		unsigned int shift_width,
-		unsigned int xor)
+																				unsigned int l1size,
+																				unsigned int l2size,
+																				unsigned int shift_width,
+																				unsigned int xor)
 {
 	struct bpred_dir_t *pred_dir;
 	unsigned int cnt;
@@ -605,7 +605,7 @@ bpred_after_priming(struct bpred_t *bpred)
 	bpred->used_bimod = 0;
 	bpred->used_2lev = 0;
 	//--------------------
-	// 587:	This where we initialize the counters that track which predictor
+	// @587:	This where we initialize the counters that track which predictor
 	//			was used during execution.
 	bpred->used_2lev_a = 0;
 	bpred->used_2lev_b = 0;
@@ -753,7 +753,7 @@ md_addr_t bpred_lookup(struct bpred_t *pred,
 		}
 		break;
 		//------------------------------------------------------------------------------------------------------
-		// 587:	This is where we select the two level predictor and use it to do the
+		// @587:	This is where we select the two level predictor and use it to do the
 		//      branch prediction
 	case BPred2LComb:
 		if ((MD_OP_FLAGS(op) & (F_CTRL|F_UNCOND)) != (F_CTRL|F_UNCOND)){
@@ -973,7 +973,7 @@ void bpred_update(struct bpred_t *pred,
 	else if ((MD_OP_FLAGS(op) & (F_CTRL|F_COND)) == (F_CTRL|F_COND))
 	{
 		//------------------------------------------------------------------------------------------------------
-		// 587: if we are using the two level combinational predictor
+		// @587: if we are using the two level combinational predictor
 		// increment the stat counter on which predictor was used
 		if ( pred->class == BPred2LComb ){
 			if (dir_update_ptr->dir.meta)
@@ -1044,7 +1044,7 @@ void bpred_update(struct bpred_t *pred,
 	}
 
 	//------------------------------------------------------------------------------------------------------
-	// 587: If the instruction is not a control or unconditional branch, then it must be a branch.
+	// @587: If the instruction is not a control or unconditional branch, then it must be a branch.
 	//			and if the branch predictor used is our 2-level combined predictor
 	if ((MD_OP_FLAGS(op) & (F_CTRL|F_UNCOND)) != (F_CTRL|F_UNCOND) &&
 			(pred->class == BPred2LComb)){
@@ -1164,7 +1164,7 @@ void bpred_update(struct bpred_t *pred,
 	/* meta predictor */
 	if (dir_update_ptr->pmeta){
 		//------------------------------------------------------------------------------------------------------
-		// 587: This is where we update the meta predictor based on the result and the prediction?
+		// @587: This is where we update the meta predictor based on the result and the prediction?
 		if( pred->class == BPred2LComb ){
 			//[TOCHECK]
 			if (dir_update_ptr->dir.a_twolev != dir_update_ptr->dir.b_twolev){

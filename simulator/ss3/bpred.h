@@ -145,7 +145,7 @@ struct bpred_t {
 		struct bpred_dir_t *bimod;    /* first direction predictor */
 		struct bpred_dir_t *twolev;   /* second direction predictor */
 		//--------------------
-		// 587: This is where we are adding our two level combined predictor to the list
+		// @587: This is where we are adding our two level combined predictor to the list
 		//			of possible branch predictors to choose from
 		struct bpred_dir_t *a_twolev;   /* 2 Level Combined - predictor A */
 		struct bpred_dir_t *b_twolev;   /* 2 Level Combined - predictor B */
@@ -172,7 +172,7 @@ struct bpred_t {
 	counter_t used_bimod;   /* num bimodal predictions used (BPredComb) */
 	counter_t used_2lev;    /* num 2-level predictions used (BPredComb) */
 	//--------------------
-	// 587:	This is where we add the stats counter for our branch predictor
+	// @587:	This is where we add the stats counter for our branch predictor
 	counter_t used_2lev_a;    /* num 2-level A predictions used (BPred2LComb) */
 	counter_t used_2lev_b;    /* num 2-level B predictions used (BPred2LComb) */
 	//--------------------
@@ -220,25 +220,26 @@ bpred_create(enum bpred_class class,  /* type of predictor to create */
 		unsigned int retstack_size);/* num entries in ret-addr stack */
 
 //------------------------------------------------------------------------------------------------------
-//Added to sim-bpred
+// 	@587:	This is where we define the combined two level branch predictor structure
+//	Added to sim-bpred
 struct bpred_t *      /* branch predictory instance */
-bpred_create_2LComb(enum bpred_class class,  /* type of predictor to create */             
-		unsigned int a_l1size, /* Predictor A level-1 table size */
-		unsigned int a_l2size, /* Predictor A level-2 table size */
-		unsigned int b_l1size, /* Predictor B level-1 table size */
-		unsigned int b_l2size, /* Predictor B level-2 table size */
-		unsigned int meta_size,  /* meta predictor table size */
-		unsigned int a_shift_width,  /* Predictor A history register width */
-		unsigned int b_shift_width,  /* Predictor B history register width */
-		unsigned int a_xor,    /* Predictor A history xor address flag */
-		unsigned int b_xor,    /* Predictor B history xor address flag */
-		unsigned int btb_sets, /* number of sets in BTB */
-		unsigned int btb_assoc,  /* BTB associativity */
-		unsigned int retstack_size);/* num entries in ret-addr stack */
+bpred_create_2LComb(enum bpred_class class,  	/* type of predictor to create */
+		unsigned int a_l1size, 										/* Predictor A level-1 table size */
+		unsigned int a_l2size, 										/* Predictor A level-2 table size */
+		unsigned int b_l1size, 										/* Predictor B level-1 table size */
+		unsigned int b_l2size, 										/* Predictor B level-2 table size */
+		unsigned int meta_size,  									/* meta predictor table size */
+		unsigned int a_shift_width,  							/* Predictor A history register width */
+		unsigned int b_shift_width,  							/* Predictor B history register width */
+		unsigned int a_xor,    										/* Predictor A history xor address flag */
+		unsigned int b_xor,    										/* Predictor B history xor address flag */
+		unsigned int btb_sets, 										/* number of sets in BTB */
+		unsigned int btb_assoc,  									/* BTB associativity */
+		unsigned int retstack_size);							/* num entries in ret-addr stack */
 
 
 //------------------------------------------------------------------------------------------------------
-/*	587: This is where we create the branch predictor
+/*	@587: This is where we create the branch predictor
  *
  * 	enum bpred_class class		:	type of predictor to create
  * 	unsigned int l1size				:	level-1 table size
