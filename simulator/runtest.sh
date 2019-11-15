@@ -1,5 +1,11 @@
 #!/bin/bash
 
+cd ss3
+make clean
+make
+cd ..
+sleep 5
+
 # Print current working directory
 echo "Current directory is: $PWD"
 
@@ -10,6 +16,11 @@ ARGS="-fastfwd 1000000"
 
 # Set the max number of instructions
 ARGS+=" -max:inst 1000000"
+
+# Set the branch predictor
+ARGS+=" -bpred 2lev_comb"
+
+
 
 
 # Print the instructions for the simulator

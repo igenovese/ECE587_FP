@@ -98,7 +98,7 @@ static int comb_config[1] =
 { /* meta_table_size */1024 };
 
 //------------------------------------------------------------------------------------------------------
-// @587: This is where we set the default initialization for the 2-level combined predictor
+// @587: Set the default initialization for the 2-level combined predictor
 /* Combined 2-level predictor config (<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>) */
 static int comb_twolev_nelt = 8;
 static int comb_twolev_config[8] = { 	8, 			/* a_l1size */
@@ -131,8 +131,7 @@ static counter_t sim_num_branches = 0;
 
 
 /* register simulator-specific options */
-void
-sim_reg_options(struct opt_odb_t *odb)
+void sim_reg_options(struct opt_odb_t *odb)
 {
 	opt_reg_header(odb,
 			"sim-bpred: This simulator implements a branch predictor analyzer.\n"
@@ -209,10 +208,14 @@ sim_reg_options(struct opt_odb_t *odb)
 			/* print */TRUE, /* format */NULL, /* !accrue */FALSE);
 }
 
+
 /* check simulator-specific option values */
-void
-sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
+void sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 {
+	// @587: Check that we get here
+	info("587: sim-bpred.c check options. Pred type: %s", pred_type);
+
+
 	if (!mystricmp(pred_type, "taken"))
 	{
 		/* static predictor, not taken */
@@ -287,7 +290,10 @@ sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 	}
 	//------------------------------------------------------------------------------------------------------
 	/* 578: This where the simulator checks the branch predictor type and the input
-	 * argument pred_type has been set to our 2-level predictor
+	 * argument pred_type has been set to our 2-level predictor.
+	 *
+	 * Ryan: I get an error "cannot parse predictor" when running out of order simulator
+	 * 			 and we never get here.
 	 */
 	else if (!mystricmp(pred_type, "2lev_comb"))
 	{
@@ -313,16 +319,15 @@ sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 				btb_config[1], /*BTB assoc*/
 				ras_size       /*ret-addr stack size*/
 		);
-
 	}
 	//------------------------------------------------------------------------------------------------------
+
 	else
 		fatal("cannot parse predictor type `%s'", pred_type);
 }
 
 /* register simulator-specific statistics */
-void
-sim_reg_stats(struct stat_sdb_t *sdb)
+void sim_reg_stats(struct stat_sdb_t *sdb)
 {
 	stat_reg_counter(sdb, "sim_num_insn",
 			"total number of instructions executed",
@@ -350,8 +355,7 @@ sim_reg_stats(struct stat_sdb_t *sdb)
 }
 
 /* initialize the simulator */
-void
-sim_init(void)
+void sim_init(void)
 {
 	sim_num_refs = 0;
 
@@ -378,8 +382,7 @@ bpred_mstate_obj(FILE *stream,      /* output stream */
 		}
 
 /* load program into simulated state */
-void
-sim_load_prog(char *fname,    /* program to load */
+void sim_load_prog(char *fname,    /* program to load */
 		int argc, char **argv,  /* program arguments */
 		char **envp)    /* program environment */
 {
@@ -391,15 +394,13 @@ sim_load_prog(char *fname,    /* program to load */
 }
 
 /* print simulator-specific configuration information */
-void
-sim_aux_config(FILE *stream)    /* output stream */
+void sim_aux_config(FILE *stream)    /* output stream */
 {
 	/* nothing currently */
 }
 
 /* dump simulator-specific auxiliary simulator statistics */
-void
-sim_aux_stats(FILE *stream)   /* output stream */
+void sim_aux_stats(FILE *stream)   /* output stream */
 {
 	/* nada */
 }
