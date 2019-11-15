@@ -99,160 +99,178 @@
 
 /* branch predictor types */
 enum bpred_class {
-    BPredComb,                    /* combined predictor (McFarling) */
-    BPred2Level,      /* 2-level correlating pred w/2-bit counters */
-    BPred2bit,      /* 2-bit saturating cntr pred (dir mapped) */
-    BPredTaken,     /* static predict taken */
-    BPredNotTaken,    /* static predict not taken */
-    BPred_NUM,
-    BPred2LComb         /* Combined predictor of two two-level adaptive predictos */
+	BPredComb,                    /* combined predictor (McFarling) */
+	BPred2Level,      /* 2-level correlating pred w/2-bit counters */
+	BPred2bit,      /* 2-bit saturating cntr pred (dir mapped) */
+	BPredTaken,     /* static predict taken */
+	BPredNotTaken,    /* static predict not taken */
+	BPred_NUM,
+
+	// 578: This is a new class type for the combined 2-level predictor
+	BPred2LComb         /* Combined predictor of two two-level adaptive predictos */
 };
 
 /* an entry in a BTB */
 struct bpred_btb_ent_t {
-    md_addr_t addr;   /* address of branch being tracked */
-    enum md_opcode op;    /* opcode of branch corresp. to addr */
-    md_addr_t target;   /* last destination of branch when taken */
-    struct bpred_btb_ent_t *prev, *next; /* lru chaining pointers */
+	md_addr_t addr;   /* address of branch being tracked */
+	enum md_opcode op;    /* opcode of branch corresp. to addr */
+	md_addr_t target;   /* last destination of branch when taken */
+	struct bpred_btb_ent_t *prev, *next; /* lru chaining pointers */
 };
 
 /* direction predictor def */
 struct bpred_dir_t {
-    enum bpred_class class; /* type of predictor */
-    union {
-        struct {
-            unsigned int size;  /* number of entries in direct-mapped table */
-            unsigned char *table; /* prediction state table */
-        } bimod;
-        struct {
-            int l1size;   /* level-1 size, number of history regs */
-            int l2size;   /* level-2 size, number of pred states */
-            int shift_width;    /* amount of history in level-1 shift regs */
-            int xor;      /* history xor address flag */
-            int *shiftregs;   /* level-1 history table */
-            unsigned char *l2table; /* level-2 prediction state table */
-        } two;
-    } config;
+	enum bpred_class class; 		/* type of predictor */
+	union {
+		struct {
+			unsigned int size;  		/* number of entries in direct-mapped table */
+			unsigned char *table; 	/* prediction state table */
+		} bimod;
+
+		struct {
+			int l1size;   					/* level-1 size, number of history regs */
+			int l2size;   					/* level-2 size, number of pred states */
+			int shift_width;    		/* amount of history in level-1 shift regs */
+			int xor;      					/* history xor address flag */
+			int *shiftregs;   			/* level-1 history table */
+			unsigned char *l2table; /* level-2 prediction state table */
+		} two;
+	} config;
 };
 
 /* branch predictor def */
 struct bpred_t {
-    enum bpred_class class; /* type of predictor */
-    struct {
-        struct bpred_dir_t *bimod;    /* first direction predictor */
-        struct bpred_dir_t *twolev;   /* second direction predictor */
-        //--------------------
-        struct bpred_dir_t *a_twolev;   /* 2 Level Combined - predictor A */
-        struct bpred_dir_t *b_twolev;   /* 2 Level Combined - predictor B */
-        //--------------------
-        struct bpred_dir_t *meta;   /* meta predictor */
-    } dirpred;
+	enum bpred_class class; /* type of predictor */
+	struct {
+		struct bpred_dir_t *bimod;    /* first direction predictor */
+		struct bpred_dir_t *twolev;   /* second direction predictor */
+		//--------------------
+		// 587: This is where we are adding our two level combined predictor to the list
+		//			of possible branch predictors to choose from
+		struct bpred_dir_t *a_twolev;   /* 2 Level Combined - predictor A */
+		struct bpred_dir_t *b_twolev;   /* 2 Level Combined - predictor B */
+		//--------------------
+		struct bpred_dir_t *meta;   /* meta predictor */
+	} dirpred;
 
-    struct {
-        int sets;     /* num BTB sets */
-        int assoc;      /* BTB associativity */
-        struct bpred_btb_ent_t *btb_data; /* BTB addr-prediction table */
-    } btb;
+	struct {
+		int sets;     /* num BTB sets */
+		int assoc;      /* BTB associativity */
+		struct bpred_btb_ent_t *btb_data; /* BTB addr-prediction table */
+	} btb;
 
-    struct {
-        int size;     /* return-address stack size */
-        int tos;      /* top-of-stack */
-        struct bpred_btb_ent_t *stack; /* return-address stack */
-    } retstack;
+	struct {
+		int size;     /* return-address stack size */
+		int tos;      /* top-of-stack */
+		struct bpred_btb_ent_t *stack; /* return-address stack */
+	} retstack;
 
-    /* stats */
-    counter_t addr_hits;    /* num correct addr-predictions */
-    counter_t dir_hits;   /* num correct dir-predictions (incl addr) */
-    counter_t used_ras;   /* num RAS predictions used */
-    counter_t used_bimod;   /* num bimodal predictions used (BPredComb) */
-    counter_t used_2lev;    /* num 2-level predictions used (BPredComb) */
-    //--------------------
-    counter_t used_2lev_a;    /* num 2-level A predictions used (BPred2LComb) */
-    counter_t used_2lev_b;    /* num 2-level B predictions used (BPred2LComb) */
-    //--------------------
-    counter_t jr_hits;    /* num correct addr-predictions for JR's */
-    counter_t jr_seen;    /* num JR's seen */
-    counter_t jr_non_ras_hits;  /* num correct addr-preds for non-RAS JR's */
-    counter_t jr_non_ras_seen;  /* num non-RAS JR's seen */
-    counter_t misses;   /* num incorrect predictions */
+	/* stats */
+	counter_t addr_hits;    /* num correct addr-predictions */
+	counter_t dir_hits;   /* num correct dir-predictions (incl addr) */
+	counter_t used_ras;   /* num RAS predictions used */
+	counter_t used_bimod;   /* num bimodal predictions used (BPredComb) */
+	counter_t used_2lev;    /* num 2-level predictions used (BPredComb) */
+	//--------------------
+	// 587:	This is where we add the stats counter for our branch predictor
+	counter_t used_2lev_a;    /* num 2-level A predictions used (BPred2LComb) */
+	counter_t used_2lev_b;    /* num 2-level B predictions used (BPred2LComb) */
+	//--------------------
+	counter_t jr_hits;    /* num correct addr-predictions for JR's */
+	counter_t jr_seen;    /* num JR's seen */
+	counter_t jr_non_ras_hits;  /* num correct addr-preds for non-RAS JR's */
+	counter_t jr_non_ras_seen;  /* num non-RAS JR's seen */
+	counter_t misses;   /* num incorrect predictions */
 
-    counter_t lookups;    /* num lookups */
-    counter_t retstack_pops;  /* number of times a value was popped */
-    counter_t retstack_pushes;  /* number of times a value was pushed */
-    counter_t ras_hits;   /* num correct return-address predictions */
+	counter_t lookups;    /* num lookups */
+	counter_t retstack_pops;  /* number of times a value was popped */
+	counter_t retstack_pushes;  /* number of times a value was pushed */
+	counter_t ras_hits;   /* num correct return-address predictions */
 };
 
 /* branch predictor update information */
 struct bpred_update_t {
-    char *pdir1;    /* direction-1 predictor counter */
-    char *pdir2;    /* direction-2 predictor counter */
-    char *pmeta;    /* meta predictor counter */
-    struct {    /* predicted directions */
-        unsigned int ras    : 1;  /* RAS used */
-        unsigned int bimod  : 1;    /* bimodal predictor */
-        unsigned int twolev : 1;    /* 2-level predictor */
-        unsigned int meta   : 1;    /* meta predictor (0..bimod / 1..2lev) */
-//------------------------------------------------------------------------------------------------------
-        unsigned int a_twolev : 1;
-        unsigned int b_twolev : 1;
-//------------------------------------------------------------------------------------------------------
-    } dir;
+	char *pdir1;    /* direction-1 predictor counter */
+	char *pdir2;    /* direction-2 predictor counter */
+	char *pmeta;    /* meta predictor counter */
+	struct {    /* predicted directions */
+		unsigned int ras    : 1;  /* RAS used */
+		unsigned int bimod  : 1;    /* bimodal predictor */
+		unsigned int twolev : 1;    /* 2-level predictor */
+		unsigned int meta   : 1;    /* meta predictor (0..bimod / 1..2lev) */
+		//------------------------------------------------------------------------------------------------------
+		// 587: This is where we add our combined two level predictors to the prediction structure
+		unsigned int a_twolev : 1;
+		unsigned int b_twolev : 1;
+		//------------------------------------------------------------------------------------------------------
+	} dir;
 };
 
 /* create a branch predictor */
 struct bpred_t *      /* branch predictory instance */
 bpred_create(enum bpred_class class,  /* type of predictor to create */
-             unsigned int bimod_size, /* bimod table size */
-             unsigned int l1size, /* level-1 table size */
-             unsigned int l2size, /* level-2 table size */
-             unsigned int meta_size,  /* meta predictor table size */
-             unsigned int shift_width,  /* history register width */
-             unsigned int xor,    /* history xor address flag */
-             unsigned int btb_sets, /* number of sets in BTB */ 
-             unsigned int btb_assoc,  /* BTB associativity */
-             unsigned int retstack_size);/* num entries in ret-addr stack */
+		unsigned int bimod_size, /* bimod table size */
+		unsigned int l1size, /* level-1 table size */
+		unsigned int l2size, /* level-2 table size */
+		unsigned int meta_size,  /* meta predictor table size */
+		unsigned int shift_width,  /* history register width */
+		unsigned int xor,    /* history xor address flag */
+		unsigned int btb_sets, /* number of sets in BTB */
+		unsigned int btb_assoc,  /* BTB associativity */
+		unsigned int retstack_size);/* num entries in ret-addr stack */
 
 //------------------------------------------------------------------------------------------------------
 //Added to sim-bpred
 struct bpred_t *      /* branch predictory instance */
 bpred_create_2LComb(enum bpred_class class,  /* type of predictor to create */             
-             unsigned int a_l1size, /* Predictor A level-1 table size */
-             unsigned int a_l2size, /* Predictor A level-2 table size */
-             unsigned int b_l1size, /* Predictor B level-1 table size */
-             unsigned int b_l2size, /* Predictor B level-2 table size */
-             unsigned int meta_size,  /* meta predictor table size */
-             unsigned int a_shift_width,  /* Predictor A history register width */
-             unsigned int b_shift_width,  /* Predictor B history register width */
-             unsigned int a_xor,    /* Predictor A history xor address flag */
-             unsigned int b_xor,    /* Predictor B history xor address flag */
-             unsigned int btb_sets, /* number of sets in BTB */ 
-             unsigned int btb_assoc,  /* BTB associativity */
-             unsigned int retstack_size);/* num entries in ret-addr stack */
+		unsigned int a_l1size, /* Predictor A level-1 table size */
+		unsigned int a_l2size, /* Predictor A level-2 table size */
+		unsigned int b_l1size, /* Predictor B level-1 table size */
+		unsigned int b_l2size, /* Predictor B level-2 table size */
+		unsigned int meta_size,  /* meta predictor table size */
+		unsigned int a_shift_width,  /* Predictor A history register width */
+		unsigned int b_shift_width,  /* Predictor B history register width */
+		unsigned int a_xor,    /* Predictor A history xor address flag */
+		unsigned int b_xor,    /* Predictor B history xor address flag */
+		unsigned int btb_sets, /* number of sets in BTB */
+		unsigned int btb_assoc,  /* BTB associativity */
+		unsigned int retstack_size);/* num entries in ret-addr stack */
+
 
 //------------------------------------------------------------------------------------------------------
-/* create a branch direction predictor */
-struct bpred_dir_t *    /* branch direction predictor instance */
-bpred_dir_create (
-    enum bpred_class class, /* type of predictor to create */
-    unsigned int l1size,    /* level-1 table size */
-    unsigned int l2size,    /* level-2 table size (if relevant) */
-    unsigned int shift_width, /* history register width */
-    unsigned int xor);      /* history xor address flag */
+/*	587: This is where we create the branch predictor
+ *
+ * 	enum bpred_class class		:	type of predictor to create
+ * 	unsigned int l1size				:	level-1 table size
+ * 	unsigned int l2size				:	level-2 table size (if relevant)
+ * 	unsigned int shift_width	:	history register width
+ * 	unsigned int xor)					:	history xor address flag
+ *
+ * 	Returns: branch direction predictor instance
+ */
+struct bpred_dir_t * bpred_dir_create (	enum bpred_class class,
+																				unsigned int l1size,
+																				unsigned int l2size,
+																				unsigned int shift_width,
+																				unsigned int xor);
+
+//------------------------------------------------------------------------------------------------------
+
 
 /* print branch predictor configuration */
 void
 bpred_config(struct bpred_t *pred,  /* branch predictor instance */
-             FILE *stream);   /* output stream */
+		FILE *stream);   /* output stream */
 
 /* print predictor stats */
 void
 bpred_stats(struct bpred_t *pred, /* branch predictor instance */
-            FILE *stream);    /* output stream */
+		FILE *stream);    /* output stream */
 
 /* register branch predictor stats */
 void
 bpred_reg_stats(struct bpred_t *pred, /* branch predictor instance */
-        struct stat_sdb_t *sdb);/* stats database */
+		struct stat_sdb_t *sdb);/* stats database */
 
 /* reset stats after priming, if appropriate */
 void bpred_after_priming(struct bpred_t *bpred);
@@ -266,14 +284,14 @@ void bpred_after_priming(struct bpred_t *bpred);
      (used for recovering ret-addr stack after mis-predict).  */
 md_addr_t       /* predicted branch target addr */
 bpred_lookup(struct bpred_t *pred,  /* branch predictor instance */
-             md_addr_t baddr,   /* branch address */
-             md_addr_t btarget,   /* branch target if taken */
-             enum md_opcode op,   /* opcode of instruction */
-             int is_call,   /* non-zero if inst is fn call */
-             int is_return,   /* non-zero if inst is fn return */
-             struct bpred_update_t *dir_update_ptr, /* pred state pointer */
-             int *stack_recover_idx); /* Non-speculative top-of-stack;
-                     * used on mispredict recovery */
+		md_addr_t baddr,   /* branch address */
+		md_addr_t btarget,   /* branch target if taken */
+		enum md_opcode op,   /* opcode of instruction */
+		int is_call,   /* non-zero if inst is fn call */
+		int is_return,   /* non-zero if inst is fn return */
+		struct bpred_update_t *dir_update_ptr, /* pred state pointer */
+		int *stack_recover_idx); /* Non-speculative top-of-stack;
+		 * used on mispredict recovery */
 
 /* Speculative execution can corrupt the ret-addr stack.  So for each
  * lookup we return the top-of-stack (TOS) at that point; a mispredicted
@@ -281,9 +299,9 @@ bpred_lookup(struct bpred_t *pred,  /* branch predictor instance */
  * hopefully this uncorrupts the stack. */
 void
 bpred_recover(struct bpred_t *pred, /* branch predictor instance */
-                md_addr_t baddr,    /* branch address */
-                int stack_recover_idx); /* Non-speculative top-of-stack;
-                     * used on mispredict recovery */
+		md_addr_t baddr,    /* branch address */
+		int stack_recover_idx); /* Non-speculative top-of-stack;
+		 * used on mispredict recovery */
 
 /* update the branch predictor, only useful for stateful predictors; updates
      entry for instruction type OP at address BADDR.  BTB only gets updated
@@ -295,13 +313,13 @@ bpred_recover(struct bpred_t *pred, /* branch predictor instance */
      bpred_update is done speculatively, branch-prediction may get polluted. */
 void
 bpred_update(struct bpred_t *pred,  /* branch predictor instance */
-             md_addr_t baddr,   /* branch address */
-             md_addr_t btarget,   /* resolved branch target */
-             int taken,     /* non-zero if branch was taken */
-             int pred_taken,    /* non-zero if branch was pred taken */
-             int correct,   /* was earlier prediction correct? */
-             enum md_opcode op,   /* opcode of instruction */
-             struct bpred_update_t *dir_update_ptr); /* pred state pointer */
+		md_addr_t baddr,   /* branch address */
+		md_addr_t btarget,   /* resolved branch target */
+		int taken,     /* non-zero if branch was taken */
+		int pred_taken,    /* non-zero if branch was pred taken */
+		int correct,   /* was earlier prediction correct? */
+		enum md_opcode op,   /* opcode of instruction */
+		struct bpred_update_t *dir_update_ptr); /* pred state pointer */
 
 
 #ifdef foo0
@@ -309,7 +327,7 @@ bpred_update(struct bpred_t *pred,  /* branch predictor instance */
 /* dump branch predictor state (for debug) */
 void
 bpred_dump(struct bpred_t *pred,  /* branch predictor instance */
-         FILE *stream);   /* output stream */
+		FILE *stream);   /* output stream */
 #endif
 
 #endif /* BPRED_H */

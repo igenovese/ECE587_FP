@@ -31,7 +31,9 @@
 
 ###########################################################################
 ## hpux/linux/NT specific settings go up here
-$exp_dir = "/u/genovese/Documents/remote/ECE587/ECE587_FP/simulator";
+
+$exp_dir = "/media/ryan/Shared/school/587/project/ECE587_FP/simulator";
+#$exp_dir = "/u/genovese/Documents/remote/ECE587/ECE587_FP/simulator";
 $bench_dir = "$exp_dir/bench";
 $input_dir = "$exp_dir/input/ref";
 $output_dir = "$exp_dir/output/ref";
