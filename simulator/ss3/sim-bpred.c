@@ -98,7 +98,7 @@ static int comb_config[1] =
 { /* meta_table_size */1024 };
 
 //------------------------------------------------------------------------------------------------------
-// 587: This is where we set the default initialization for the 2-level combined predictor
+// @587: This is where we set the default initialization for the 2-level combined predictor
 /* Combined 2-level predictor config (<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>) */
 static int comb_twolev_nelt = 8;
 static int comb_twolev_config[8] = { 	8, 			/* a_l1size */
@@ -185,7 +185,7 @@ sim_reg_options(struct opt_odb_t *odb)
 			/* print */TRUE, /* format */NULL, /* !accrue */FALSE);
 
 	//------------------------------------------------------------------------------------------------------
-	// 587:	What is this?
+	// @587:	What is this?
 	opt_reg_int_list(odb, "-bpred:2lev_comb",
 			"Combined 2-level predictor config "
 			"(<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>)",
