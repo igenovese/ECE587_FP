@@ -133,13 +133,13 @@ static int comb_config[1] =
 /* Combined 2-level predictor config (<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>) */
 static int comb_twolev_nelt = 8;
 static int comb_twolev_config[8] = { 	8, 			/* a_l1size */
-																		256, 		/* a_l2size */
-																		8,			/* a_hist */
-																		FALSE, 	/* a_xor */
-																		8, 			/* b_l1size */
-																		65536, 	/* b_l2size */
-																		8,			/* b_hist */
-																		FALSE };/* b_xor */
+	256, 		/* a_l2size */
+	8,			/* a_hist */
+	FALSE, 	/* a_xor */
+	8, 			/* b_l1size */
+	65536, 	/* b_l2size */
+	8,			/* b_hist */
+	FALSE };/* b_xor */
 //------------------------------------------------------------------------------
 
 
@@ -367,9 +367,9 @@ static unsigned int inst_seq = 0;
 static unsigned int ptrace_seq = 0;
 
 /* speculation mode, non-zero when mis-speculating, i.e., executing
- instructions down the wrong path, thus state recovery will eventually have
- to occur that resets processor register and memory state back to the last
- precise state */
+instructions down the wrong path, thus state recovery will eventually have
+to occur that resets processor register and memory state back to the last
+precise state */
 static int spec_mode = FALSE;
 
 /* cycles until fetch issue resumes */
@@ -891,7 +891,7 @@ opt_reg_flag(odb, "-bugcompat",
 
 /* check simulator-specific option values */
 void sim_check_options(	struct opt_odb_t *odb,        /* options database */
-											int argc, char **argv)        /* command line arguments */
+	int argc, char **argv)        /* command line arguments */
 {
 char name[128], c;
 int nsets, bsize, assoc;
@@ -1505,8 +1505,8 @@ if (ptrace_nelt > 0)
 typedef unsigned int INST_TAG_TYPE;
 
 /* inst sequence type, used to order instructions in the ready list, if
- this rolls over the ready list order temporarily will get messed up,
- but execution will continue and complete correctly */
+this rolls over the ready list order temporarily will get messed up,
+but execution will continue and complete correctly */
 typedef unsigned int INST_SEQ_TYPE;
 
 
@@ -1517,18 +1517,18 @@ typedef unsigned int INST_SEQ_TYPE;
 #define MAX_ODEPS               2
 
 /* a register update unit (RUU) station, this record is contained in the
- processors RUU, which serves as a collection of ordered reservations
- stations.  The reservation stations capture register results and await
- the time when all operands are ready, at which time the instruction is
- issued to the functional units; the RUU is an order circular queue, in which
- instructions are inserted in fetch (program) order, results are stored in
- the RUU buffers, and later when an RUU entry is the oldest entry in the
- machines, it and its instruction's value is retired to the architectural
- register file in program order, NOTE: the RUU and LSQ share the same
- structure, this is useful because loads and stores are split into two
- operations: an effective address add and a load/store, the add is inserted
- into the RUU and the load/store inserted into the LSQ, allowing the add
- to wake up the load/store when effective address computation has finished */
+processors RUU, which serves as a collection of ordered reservations
+stations.  The reservation stations capture register results and await
+the time when all operands are ready, at which time the instruction is
+issued to the functional units; the RUU is an order circular queue, in which
+instructions are inserted in fetch (program) order, results are stored in
+the RUU buffers, and later when an RUU entry is the oldest entry in the
+machines, it and its instruction's value is retired to the architectural
+register file in program order, NOTE: the RUU and LSQ share the same
+structure, this is useful because loads and stores are split into two
+operations: an effective address add and a load/store, the add is inserted
+into the RUU and the load/store inserted into the LSQ, allowing the add
+to wake up the load/store when effective address computation has finished */
 struct RUU_station {
 /* inst info */
 md_inst_t IR;			/* instruction bits */
@@ -1542,9 +1542,9 @@ struct bpred_update_t dir_update;	/* bpred direction update info */
 int spec_mode;			/* non-zero if issued in spec_mode */
 md_addr_t addr;			/* effective address for ld/st's */
 INST_TAG_TYPE tag;			/* RUU slot tag, increment to
-					 squash operation */
+				 squash operation */
 INST_SEQ_TYPE seq;			/* instruction sequence, used to
-					 sort the ready list and tag inst */
+				 sort the ready list and tag inst */
 unsigned int ptrace_seq;		/* pipetrace sequence number */
 int slip;
 /* instruction status */
@@ -1552,17 +1552,17 @@ int queued;				/* operands ready and queued */
 int issued;				/* operation is/was executing */
 int completed;			/* operation has completed execution */
 /* output operand dependency list, these lists are used to
-	 limit the number of associative searches into the RUU when
-	 instructions complete and need to wake up dependent insts */
+ limit the number of associative searches into the RUU when
+ instructions complete and need to wake up dependent insts */
 int onames[MAX_ODEPS];		/* output logical names (NA=unused) */
 struct RS_link *odep_list[MAX_ODEPS];	/* chains to consuming operations */
 
 /* input dependent links, the output chains rooted above use these
-	 fields to mark input operands as ready, when all these fields have
-	 been set non-zero, the RUU operation has all of its register
-	 operands, it may commence execution as soon as all of its memory
-	 operands are known to be read (see lsq_refresh() for details on
-	 enforcing memory dependencies) */
+ fields to mark input operands as ready, when all these fields have
+ been set non-zero, the RUU operation has all of its register
+ operands, it may commence execution as soon as all of its memory
+ operands are known to be read (see lsq_refresh() for details on
+ enforcing memory dependencies) */
 int idep_ready[MAX_IDEPS];		/* input operand ready? */
 };
 
@@ -1571,7 +1571,7 @@ int idep_ready[MAX_IDEPS];		/* input operand ready? */
 	((RS)->idep_ready[0] && (RS)->idep_ready[1] && (RS)->idep_ready[2])
 
 /* register update unit, combination of reservation stations and reorder
- buffer device, organized as a circular queue */
+buffer device, organized as a circular queue */
 static struct RUU_station *RUU;		/* register update unit */
 static int RUU_head, RUU_tail;		/* RUU head and tail pointers */
 static int RUU_num;			/* num entries currently in RUU */
@@ -1739,13 +1739,13 @@ while (num)
 */
 
 /* a reservation station link: this structure links elements of a RUU
- reservation station list; used for ready instruction queue, event queue, and
- output dependency lists; each RS_LINK node contains a pointer to the RUU
- entry it references along with an instance tag, the RS_LINK is only valid if
- the instruction instance tag matches the instruction RUU entry instance tag;
- this strategy allows entries in the RUU can be squashed and reused without
- updating the lists that point to it, which significantly improves the
- performance of (all to frequent) squash events */
+reservation station list; used for ready instruction queue, event queue, and
+output dependency lists; each RS_LINK node contains a pointer to the RUU
+entry it references along with an instance tag, the RS_LINK is only valid if
+the instruction instance tag matches the instruction RUU entry instance tag;
+this strategy allows entries in the RUU can be squashed and reused without
+updating the lists that point to it, which significantly improves the
+performance of (all to frequent) squash events */
 struct RS_link {
 struct RS_link *next;			/* next entry in list */
 struct RUU_station *rs;		/* referenced RUU resv station */
@@ -1827,9 +1827,9 @@ for (i=0; i<nlinks; i++)
 }
 
 /* service all functional unit release events, this function is called
- once per cycle, and it used to step the BUSY timers attached to each
- functional unit in the function unit resource pool, as long as a functional
- unit's BUSY count is > 0, it cannot be issued an operation */
+once per cycle, and it used to step the BUSY timers attached to each
+functional unit in the function unit resource pool, as long as a functional
+unit's BUSY count is > 0, it cannot be issued an operation */
 static void
 ruu_release_fu(void)
 {
@@ -1852,8 +1852,8 @@ for (i=0; i<fu_pool->num_resources; i++)
 */
 
 /* pending event queue, sorted from soonest to latest event (in time), NOTE:
- RS_LINK nodes are used for the event queue list so that it need not be
- updated during squash events */
+RS_LINK nodes are used for the event queue list so that it need not be
+updated during squash events */
 static struct RS_link *event_queue;
 
 /* initialize the event queue structures */
@@ -1890,8 +1890,8 @@ for (ev = event_queue; ev != NULL; ev = ev->next)
 }
 
 /* insert an event for RS into the event queue, event queue is sorted from
- earliest to latest event, event and associated side-effects will be
- apparent at the start of cycle WHEN */
+earliest to latest event, event and associated side-effects will be
+apparent at the start of cycle WHEN */
 static void
 eventq_queue_event(struct RUU_station *rs, tick_t when)
 {
@@ -1927,7 +1927,7 @@ else
 }
 
 /* return the next event that has already occurred, returns NULL when no
- remaining events or all remaining events are in the future */
+remaining events or all remaining events are in the future */
 static struct RUU_station *
 eventq_next_event(void)
 {
@@ -2014,13 +2014,13 @@ for (link = ready_queue; link != NULL; link = link->next)
 }
 
 /* insert ready node into the ready list using ready instruction scheduling
- policy; currently the following scheduling policy is enforced:
+policy; currently the following scheduling policy is enforced:
 
-	 memory and long latency operands, and branch instructions first
+ memory and long latency operands, and branch instructions first
 
- then
+then
 
-	 all other instructions, oldest instructions first
+ all other instructions, oldest instructions first
 
 this policy works well because branches pass through the machine quicker
 which works to reduce branch misprediction latencies, and very long latency
@@ -2092,14 +2092,14 @@ static struct CV_link CVLINK_NULL = { NULL, 0 };
 #define CV_BMAP_SZ              (BITMAP_SIZE(MD_TOTAL_REGS))
 
 /* the create vector, NOTE: speculative copy on write storage provided
- for fast recovery during wrong path execute (see tracer_recover() for
- details on this process */
+for fast recovery during wrong path execute (see tracer_recover() for
+details on this process */
 static BITMAP_TYPE(MD_TOTAL_REGS, use_spec_cv);
 static struct CV_link create_vector[MD_TOTAL_REGS];
 static struct CV_link spec_create_vector[MD_TOTAL_REGS];
 
 /* these arrays shadow the create vector an indicate when a register was
- last created */
+last created */
 static tick_t create_vector_rt[MD_TOTAL_REGS];
 static tick_t spec_create_vector_rt[MD_TOTAL_REGS];
 
@@ -2126,7 +2126,7 @@ cv_init(void)
 int i;
 
 /* initially all registers are valid in the architected register file,
-	 i.e., the create vector entry is CVLINK_NULL */
+ i.e., the create vector entry is CVLINK_NULL */
 for (i=0; i < MD_TOTAL_REGS; i++)
 {
 	create_vector[i] = CVLINK_NULL;
@@ -2169,8 +2169,8 @@ for (i=0; i < MD_TOTAL_REGS; i++)
 */
 
 /* this function commits the results of the oldest completed entries from the
- RUU and LSQ to the architected reg file, stores in the LSQ will commit
- their store data to the data cache at this point as well */
+RUU and LSQ to the architected reg file, stores in the LSQ will commit
+their store data to the data cache at this point as well */
 static void
 ruu_commit(void)
 {
@@ -2212,7 +2212,7 @@ while (RUU_num > 0 && committed < ruu_commit_width)
 
 
 			/* stores must retire their store value to the cache at commit,
-	 try to get a store port (functional unit allocation) */
+ try to get a store port (functional unit allocation) */
 			fu = res_get(fu_pool, MD_OP_FUCLASS(LSQ[LSQ_head].op));
 			if (fu)
 			{
@@ -2270,15 +2270,13 @@ while (RUU_num > 0 && committed < ruu_commit_width)
 			&& (MD_OP_FLAGS(rs->op) & F_CTRL))
 	{
 		bpred_update(pred,
-				/* branch address */rs->PC,
-				/* actual target address */rs->next_PC,
-				/* taken? */rs->next_PC != (rs->PC +
-						sizeof(md_inst_t)),
-						/* pred taken? */rs->pred_PC != (rs->PC +
-								sizeof(md_inst_t)),
-								/* correct pred? */rs->pred_PC == rs->next_PC,
-								/* opcode */rs->op,
-								/* dir predictor update pointer */&rs->dir_update);
+				rs->PC,																		/* branch address */
+				rs->next_PC,											 /* actual target address */
+				rs->next_PC != (rs->PC + sizeof(md_inst_t)),			/* taken? */
+				rs->pred_PC != (rs->PC + sizeof(md_inst_t)), /* pred taken? */
+				rs->pred_PC == rs->next_PC, 							 /* correct pred? */
+				rs->op, 																					/* opcode */
+				&rs->dir_update); 					/* dir predictor update pointer */
 	}
 
 	/* invalidate RUU operation instance */
@@ -2321,7 +2319,7 @@ while (RUU_num > 0 && committed < ruu_commit_width)
 */
 
 /* recover processor microarchitecture state back to point of the
- mis-predicted branch at RUU[BRANCH_INDEX] */
+mis-predicted branch at RUU[BRANCH_INDEX] */
 static void
 ruu_recover(int branch_index)			/* index of mis-pred branch */
 {
@@ -2329,8 +2327,8 @@ int i, RUU_index = RUU_tail, LSQ_index = LSQ_tail;
 int RUU_prev_tail = RUU_tail, LSQ_prev_tail = LSQ_tail;
 
 /* recover from the tail of the RUU towards the head until the branch index
-	 is reached, this direction ensures that the LSQ can be synchronized with
-	 the RUU */
+ is reached, this direction ensures that the LSQ can be synchronized with
+ the RUU */
 
 /* go to first element to squash */
 RUU_index = (RUU_index + (RUU_size-1)) % RUU_size;
@@ -2399,8 +2397,8 @@ RUU_tail = RUU_prev_tail;
 LSQ_tail = LSQ_prev_tail;
 
 /* revert create vector back to last precise create vector state, NOTE:
-	 this is accomplished by resetting all the copied-on-write bits in the
-	 USE_SPEC_CV bit vector */
+ this is accomplished by resetting all the copied-on-write bits in the
+ USE_SPEC_CV bit vector */
 BITMAP_CLEAR_MAP(use_spec_cv, CV_BMAP_SZ);
 
 /* FIXME: could reset functional units at squash time */
@@ -2415,10 +2413,10 @@ BITMAP_CLEAR_MAP(use_spec_cv, CV_BMAP_SZ);
 static void tracer_recover(void);
 
 /* writeback completed operation results from the functional units to RUU,
- at this point, the output dependency chains of completing instructions
- are also walked to determine if any dependent instruction now has all
- of its register operands, if so the (nearly) ready instruction is inserted
- into the ready instruction queue */
+at this point, the output dependency chains of completing instructions
+are also walked to determine if any dependent instruction now has all
+of its register operands, if so the (nearly) ready instruction is inserted
+into the ready instruction queue */
 static void
 ruu_writeback(void)
 {
@@ -2459,15 +2457,13 @@ while ((rs = eventq_next_event()))
 			&& (MD_OP_FLAGS(rs->op) & F_CTRL))
 	{
 		bpred_update(pred,
-				/* branch address */rs->PC,
-				/* actual target address */rs->next_PC,
-				/* taken? */rs->next_PC != (rs->PC +
-						sizeof(md_inst_t)),
-						/* pred taken? */rs->pred_PC != (rs->PC +
-								sizeof(md_inst_t)),
-								/* correct pred? */rs->pred_PC == rs->next_PC,
-								/* opcode */rs->op,
-								/* dir predictor update pointer */&rs->dir_update);
+				rs->PC,																		 /* branch address */
+				rs->next_PC,												/* actual target address */
+				rs->next_PC != (rs->PC + sizeof(md_inst_t)),			 /* taken? */
+				rs->pred_PC != (rs->PC + sizeof(md_inst_t)),	/* pred taken? */
+				rs->pred_PC == rs->next_PC,									/* correct pred? */
+				rs->op,																						 /* opcode */
+				&rs->dir_update);						 /* dir predictor update pointer */
 	}
 
 	/* entered writeback stage, indicate in pipe trace */
@@ -2475,8 +2471,8 @@ while ((rs = eventq_next_event()))
 			rs->recover_inst ? PEV_MPDETECT : 0);
 
 	/* broadcast results to consuming operations, this is more efficiently
-			 accomplished by walking the output dependency chains of the
- completed instruction */
+		 accomplished by walking the output dependency chains of the
+		 completed instruction */
 	for (i=0; i<MAX_ODEPS; i++)
 	{
 		if (rs->onames[i] != NA)
@@ -2487,13 +2483,13 @@ while ((rs = eventq_next_event()))
 			if (rs->spec_mode)
 			{
 				/* update the speculative create vector, future operations
-			 get value from later creator or architected reg file */
+					 get value from later creator or architected reg file */
 				link = spec_create_vector[rs->onames[i]];
 				if (/* !NULL */link.rs
 						&& /* refs RS */(link.rs == rs && link.odep_num == i))
 				{
 					/* the result can now be read from a physical register,
-		 indicate this as so */
+						 indicate this as so */
 					spec_create_vector[rs->onames[i]] = CVLINK_NULL;
 					spec_create_vector_rt[rs->onames[i]] = sim_cycle;
 				}
@@ -2502,14 +2498,14 @@ while ((rs = eventq_next_event()))
 			else
 			{
 				/* update the non-speculative create vector, future
-			 operations get value from later creator or architected
-			 reg file */
+					 operations get value from later creator or architected
+					 reg file */
 				link = create_vector[rs->onames[i]];
 				if (/* !NULL */link.rs
 						&& /* refs RS */(link.rs == rs && link.odep_num == i))
 				{
 					/* the result can now be read from a physical register,
-		 indicate this as so */
+						 indicate this as so */
 					create_vector[rs->onames[i]] = CVLINK_NULL;
 					create_vector_rt[rs->onames[i]] = sim_cycle;
 				}
@@ -2531,8 +2527,8 @@ while ((rs = eventq_next_event()))
 					if (OPERANDS_READY(olink->rs))
 					{
 						/* yes! enqueue instruction as ready, NOTE: stores
-				 complete at dispatch, so no need to enqueue
-				 them */
+							 complete at dispatch, so no need to enqueue
+							 them */
 						if (!olink->rs->in_LSQ
 								|| ((MD_OP_FLAGS(olink->rs->op)&(F_MEM|F_STORE))
 										== (F_MEM|F_STORE)))
@@ -2564,9 +2560,9 @@ while ((rs = eventq_next_event()))
 */
 
 /* this function locates ready instructions whose memory dependencies have
- been satisfied, this is accomplished by walking the LSQ for loads, looking
- for blocking memory dependency condition (e.g., earlier store with an
- unknown address) */
+been satisfied, this is accomplished by walking the LSQ for loads, looking
+for blocking memory dependency condition (e.g., earlier store with an
+unknown address) */
 #define MAX_STD_UNKNOWNS		64
 static void
 lsq_refresh(void)
@@ -2575,14 +2571,14 @@ int i, j, index, n_std_unknowns;
 md_addr_t std_unknowns[MAX_STD_UNKNOWNS];
 
 /* scan entire queue for ready loads: scan from oldest instruction
-	 (head) until we reach the tail or an unresolved store, after which no
-	 other instruction will become ready */
+ (head) until we reach the tail or an unresolved store, after which no
+ other instruction will become ready */
 for (i=0, index=LSQ_head, n_std_unknowns=0;
 		i < LSQ_num;
 		i++, index=(index + 1) % LSQ_size)
 {
 	/* terminate search for ready loads after first unresolved store,
- as no later load could be resolved in its presence */
+as no later load could be resolved in its presence */
 	if (/* store? */
 			(MD_OP_FLAGS(LSQ[index].op) & (F_MEM|F_STORE)) == (F_MEM|F_STORE))
 	{
@@ -2595,9 +2591,9 @@ for (i=0, index=LSQ_head, n_std_unknowns=0;
 		else if (!OPERANDS_READY(&LSQ[index]))
 		{
 			/* sta known, but std unknown, may block a later store, record
-	 this address for later referral, we use an array here because
-	 for most simulations the number of entries to search will be
-	 very small */
+ this address for later referral, we use an array here because
+ for most simulations the number of entries to search will be
+ very small */
 			if (n_std_unknowns == MAX_STD_UNKNOWNS)
 				fatal("STD unknown array overflow, increase MAX_STD_UNKNOWNS");
 			std_unknowns[n_std_unknowns++] = LSQ[index].addr;
@@ -2621,7 +2617,7 @@ for (i=0, index=LSQ_head, n_std_unknowns=0;
 			&& /* regs ready? */OPERANDS_READY(&LSQ[index]))
 	{
 		/* no STA unknown conflict (because we got to this check), check for
-		 a STD unknown conflict */
+	 a STD unknown conflict */
 		for (j=0; j<n_std_unknowns; j++)
 		{
 			/* found a relevant STD unknown? */
@@ -2643,14 +2639,13 @@ for (i=0, index=LSQ_head, n_std_unknowns=0;
 */
 
 /* attempt to issue all operations in the ready queue; insts in the ready
- instruction queue have all register dependencies satisfied, this function
- must then 1) ensure the instructions memory dependencies have been satisfied
- (see lsq_refresh() for details on this process) and 2) a function unit
- is available in this cycle to commence execution of the operation; if all
- goes well, the function unit is allocated, a writeback event is scheduled,
- and the instruction begins execution */
-static void
-ruu_issue(void)
+instruction queue have all register dependencies satisfied, this function
+must then 1) ensure the instructions memory dependencies have been satisfied
+(see lsq_refresh() for details on this process) and 2) a function unit
+is available in this cycle to commence execution of the operation; if all
+goes well, the function unit is allocated, a writeback event is scheduled,
+and the instruction begins execution */
+static void ruu_issue(void)
 {
 int i, load_lat, tlb_lat, n_issued;
 struct RS_link *node, *next_node;
@@ -2659,16 +2654,16 @@ struct res_template *fu;
 /* FIXME: could be a little more efficient when scanning the ready queue */
 
 /* copy and then blow away the ready list, NOTE: the ready list is
-	 always totally reclaimed each cycle, and instructions that are not
-	 issue are explicitly reinserted into the ready instruction queue,
-	 this management strategy ensures that the ready instruction queue
-	 is always properly sorted */
+ always totally reclaimed each cycle, and instructions that are not
+ issue are explicitly reinserted into the ready instruction queue,
+ this management strategy ensures that the ready instruction queue
+ is always properly sorted */
 node = ready_queue;
 ready_queue = NULL;
 
 /* visit all ready instructions (i.e., insts whose register input
-	 dependencies have been satisfied, stop issue when no more instructions
-	 are available or issue bandwidth is exhausted */
+ dependencies have been satisfied, stop issue when no more instructions
+ are available or issue bandwidth is exhausted */
 for (n_issued=0;
 		node && n_issued < ruu_issue_width;
 		node = next_node)
@@ -2692,9 +2687,9 @@ for (n_issued=0;
 				&& ((MD_OP_FLAGS(rs->op) & (F_MEM|F_STORE)) == (F_MEM|F_STORE)))
 		{
 			/* stores complete in effectively zero time, result is
-	 written into the load/store queue, the actual store into
-	 the memory system occurs when the instruction is retired
-	 (see ruu_commit()) */
+				 written into the load/store queue, the actual store into
+				 the memory system occurs when the instruction is retired
+				 (see ruu_commit()) */
 			rs->issued = TRUE;
 			rs->completed = TRUE;
 			if (rs->onames[0] || rs->onames[1])
@@ -2734,8 +2729,8 @@ for (n_issued=0;
 						int events = 0;
 
 						/* for loads, determine cache access latency:
-				 first scan LSQ to see if a store forward is
-				 possible, if not, access the data cache */
+							 first scan LSQ to see if a store forward is
+							 possible, if not, access the data cache */
 						load_lat = 0;
 						i = (rs - LSQ);
 						if (i != LSQ_head)
@@ -2790,7 +2785,7 @@ for (n_issued=0;
 						if (dtlb && MD_VALID_ADDR(rs->addr))
 						{
 							/* access the D-DLB, NOTE: this code will
-			 initiate speculative TLB misses */
+								 initiate speculative TLB misses */
 							tlb_lat =
 									cache_access(dtlb, Read, (rs->addr & ~3),
 											NULL, 4, sim_cycle, NULL, NULL);
@@ -2825,8 +2820,8 @@ for (n_issued=0;
 				else /* no functional unit */
 				{
 					/* insufficient functional unit resources, put operation
-		 back onto the ready list, we'll try to issue it
-		 again next cycle */
+						 back onto the ready list, we'll try to issue it
+						 again next cycle */
 					readyq_enqueue(rs);
 				}
 			}
@@ -2852,14 +2847,14 @@ for (n_issued=0;
 	/* else, RUU entry was squashed */
 
 	/* reclaim ready list entry, NOTE: this is done whether or not the
-			 instruction issued, since the instruction was once again reinserted
-			 into the ready queue if it did not issue, this ensures that the ready
-			 queue is always properly sorted */
+		 instruction issued, since the instruction was once again reinserted
+		 into the ready queue if it did not issue, this ensures that the ready
+		 queue is always properly sorted */
 	RSLINK_FREE(node);
 }
 
 /* put any instruction not issued back into the ready queue, go through
-	 normal channels to ensure instruction stay ordered correctly */
+ normal channels to ensure instruction stay ordered correctly */
 for (; node; node = next_node)
 {
 	next_node = node->next;
@@ -2873,15 +2868,15 @@ for (; node; node = next_node)
 		rs->queued = FALSE;
 
 		/* not issued, put operation back onto the ready list, we'll try to
-		 issue it again next cycle */
+	 issue it again next cycle */
 		readyq_enqueue(rs);
 	}
 	/* else, RUU entry was squashed */
 
 	/* reclaim ready list entry, NOTE: this is done whether or not the
-			 instruction issued, since the instruction was once again reinserted
-			 into the ready queue if it did not issue, this ensures that the ready
-			 queue is always properly sorted */
+		 instruction issued, since the instruction was once again reinserted
+		 into the ready queue if it did not issue, this ensures that the ready
+		 queue is always properly sorted */
 	RSLINK_FREE(node);
 }
 }
@@ -2956,8 +2951,8 @@ for (i=0; i < MD_NUM_CREGS; i++)
 #define STORE_HASH_SIZE		32
 
 /* speculative memory hash table definition, accesses go through this hash
- table when accessing memory in speculative mode, the hash table flush the
- table when recovering from mispredicted branches */
+table when accessing memory in speculative mode, the hash table flush the
+table when recovering from mispredicted branches */
 struct spec_mem_ent {
 struct spec_mem_ent *next;		/* ptr to next hash table bucket */
 md_addr_t addr;			/* virtual address of spec state */
@@ -2992,9 +2987,9 @@ static int fetch_num;			/* num entries in IF -> DIS queue */
 static int fetch_tail, fetch_head;	/* head and tail pointers of queue */
 
 /* recover instruction trace generator state to precise state state immediately
- before the first mis-predicted branch; this is accomplished by resetting
- all register value copied-on-write bitmasks are reset, and the speculative
- memory hash table is cleared */
+before the first mis-predicted branch; this is accomplished by resetting
+all register value copied-on-write bitmasks are reset, and the speculative
+memory hash table is cleared */
 static void
 tracer_recover(void)
 {
@@ -3072,14 +3067,14 @@ for (i=0; i<STORE_HASH_SIZE; i++)
 	((((ADDR) >> 24)^((ADDR) >> 16)^((ADDR) >> 8)^(ADDR)) & (STORE_HASH_SIZE-1))
 
 /* this functional provides a layer of mis-speculated state over the
- non-speculative memory state, when in mis-speculation trace generation mode,
- the simulator will call this function to access memory, instead of the
- non-speculative memory access interfaces defined in memory.h; when storage
- is written, an entry is allocated in the speculative memory hash table,
- future reads and writes while in mis-speculative trace generation mode will
- access this buffer instead of non-speculative memory state; when the trace
- generator transitions back to non-speculative trace generation mode,
- tracer_recover() clears this table, returns any access fault */
+non-speculative memory state, when in mis-speculation trace generation mode,
+the simulator will call this function to access memory, instead of the
+non-speculative memory access interfaces defined in memory.h; when storage
+is written, an entry is allocated in the speculative memory hash table,
+future reads and writes while in mis-speculative trace generation mode will
+access this buffer instead of non-speculative memory state; when the trace
+generator transitions back to non-speculative trace generation mode,
+tracer_recover() clears this table, returns any access fault */
 static enum md_fault_type
 spec_mem_access(struct mem_t *mem,		/* memory space to access */
 	enum mem_cmd cmd,		/* Read or Write access cmd */
@@ -3171,7 +3166,7 @@ case 1:
 		else
 		{
 			/* read from non-speculative memory state, don't allocate
-				 memory pages with speculative loads */
+			 memory pages with speculative loads */
 			*((byte_t *)p) = MEM_READ_BYTE(mem, addr);
 		}
 	}
@@ -3192,7 +3187,7 @@ case 2:
 		else
 		{
 			/* read from non-speculative memory state, don't allocate
-				 memory pages with speculative loads */
+			 memory pages with speculative loads */
 			*((half_t *)p) = MEM_READ_HALF(mem, addr);
 		}
 	}
@@ -3213,7 +3208,7 @@ case 4:
 		else
 		{
 			/* read from non-speculative memory state, don't allocate
-				 memory pages with speculative loads */
+			 memory pages with speculative loads */
 			*((word_t *)p) = MEM_READ_WORD(mem, addr);
 		}
 	}
@@ -3235,7 +3230,7 @@ case 8:
 		else
 		{
 			/* read from non-speculative memory state, don't allocate
-				 memory pages with speculative loads */
+			 memory pages with speculative loads */
 			*((word_t *)p) = MEM_READ_WORD(mem, addr);
 			*(((word_t *)p)+1) =
 					MEM_READ_WORD(mem, addr + sizeof(word_t));
@@ -3321,7 +3316,7 @@ return NULL;
 */
 
 /* link RS onto the output chain number of whichever operation will next
- create the architected register value IDEP_NAME */
+create the architected register value IDEP_NAME */
 static INLINE void
 ruu_link_idep(struct RUU_station *rs,		/* rs station to link */
 	int idep_num,			/* input dependence number */
@@ -3345,14 +3340,14 @@ head = CREATE_VECTOR(idep_name);
 if (!head.rs)
 {
 	/* no active creator, use value available in architected reg file,
-			 indicate the operand is ready for use */
+		 indicate the operand is ready for use */
 	rs->idep_ready[idep_num] = TRUE;
 	return;
 }
 /* else, creator operation will make this value sometime in the future */
 
 /* indicate value will be created sometime in the future, i.e., operand
-	 is not yet ready for use */
+ is not yet ready for use */
 rs->idep_ready[idep_num] = FALSE;
 
 /* link onto creator's output list of dependant operand */
@@ -3447,8 +3442,8 @@ SET_CREATE_VECTOR(odep_name, cv);
 #define SET_CPC(EXPR)           (regs.regs_PC = (EXPR))
 
 /* general purpose register accessors, NOTE: speculative copy on write storage
- provided for fast recovery during wrong path execute (see tracer_recover()
- for details on this process */
+provided for fast recovery during wrong path execute (see tracer_recover()
+for details on this process */
 #define GPR(N)                  (BITMAP_SET_P(use_spec_R, R_BMAP_SZ, (N))\
 	? spec_regs_R[N]                       \
 			: regs.regs_R[N])
@@ -3461,8 +3456,8 @@ SET_CREATE_VECTOR(odep_name, cv);
 #if defined(TARGET_PISA)
 
 /* floating point register accessors, NOTE: speculative copy on write storage
- provided for fast recovery during wrong path execute (see tracer_recover()
- for details on this process */
+provided for fast recovery during wrong path execute (see tracer_recover()
+for details on this process */
 #define FPR_L(N)                (BITMAP_SET_P(use_spec_F, F_BMAP_SZ, ((N)&~1))\
 	? spec_regs_F.l[(N)]                   \
 			: regs.regs_F.l[(N)])
@@ -3489,8 +3484,8 @@ SET_CREATE_VECTOR(odep_name, cv);
 			: (regs.regs_F.d[(N) >> 1] = (EXPR)))
 
 /* miscellanous register accessors, NOTE: speculative copy on write storage
- provided for fast recovery during wrong path execute (see tracer_recover()
- for details on this process */
+provided for fast recovery during wrong path execute (see tracer_recover()
+for details on this process */
 #define HI			(BITMAP_SET_P(use_spec_C, C_BMAP_SZ, /*hi*/0)\
 	? spec_regs_C.hi			\
 			: regs.regs_C.hi)
@@ -3519,8 +3514,8 @@ SET_CREATE_VECTOR(odep_name, cv);
 #elif defined(TARGET_ALPHA)
 
 	/* floating point register accessors, NOTE: speculative copy on write storage
- provided for fast recovery during wrong path execute (see tracer_recover()
- for details on this process */
+provided for fast recovery during wrong path execute (see tracer_recover()
+for details on this process */
 #define FPR_Q(N)		(BITMAP_SET_P(use_spec_F, F_BMAP_SZ, (N))\
 	? spec_regs_F.q[(N)]                   \
 			: regs.regs_F.q[(N)])
@@ -3539,8 +3534,8 @@ SET_CREATE_VECTOR(odep_name, cv);
 			: (regs.regs_F.d[(N)] = (EXPR)))
 
 	/* miscellanous register accessors, NOTE: speculative copy on write storage
- provided for fast recovery during wrong path execute (see tracer_recover()
- for details on this process */
+provided for fast recovery during wrong path execute (see tracer_recover()
+for details on this process */
 #define FPCR			(BITMAP_SET_P(use_spec_C, C_BMAP_SZ,/*fpcr*/0)\
 	? spec_regs_C.fpcr			\
 			: regs.regs_C.fpcr)
@@ -3571,8 +3566,8 @@ SET_CREATE_VECTOR(odep_name, cv);
 #endif
 
 	/* precise architected memory state accessor macros, NOTE: speculative copy on
- write storage provided for fast recovery during wrong path execute (see
- tracer_recover() for details on this process */
+write storage provided for fast recovery during wrong path execute (see
+tracer_recover() for details on this process */
 #define __READ_SPECMEM(SRC, SRC_V, FAULT)				\
 	(addr = (SRC),							\
 			(spec_mode								\
@@ -3733,12 +3728,12 @@ SET_CREATE_VECTOR(odep_name, cv);
 			}
 
 	/* the last operation that ruu_dispatch() attempted to dispatch, for
- implementing in-order issue */
+implementing in-order issue */
 	static struct RS_link last_op = RSLINK_NULL_DATA;
 
 	/* dispatch instructions from the IFETCH -> DISPATCH queue: instructions are
- first decoded, then they allocated RUU (and LSQ for load/stores) resources
- and input and output dependence chains are updated accordingly */
+first decoded, then they allocated RUU (and LSQ for load/stores) resources
+and input and output dependence chains are updated accordingly */
 	static void
 	ruu_dispatch(void)
 	{
@@ -3807,7 +3802,7 @@ SET_CREATE_VECTOR(odep_name, cv);
 					break;
 
 				/* else, syscall is only instruction in the machine, at this
-		 point we should not be in (mis-)speculative mode */
+	 point we should not be in (mis-)speculative mode */
 				if (spec_mode)
 					panic("drained and speculative");
 			}
@@ -3852,10 +3847,10 @@ SET_CREATE_VECTOR(odep_name, cv);
 	break;
 #define CONNECT(OP)	/* nada... */
 	/* the following macro wraps the instruction fault declaration macro
-		 with a test to see if the trace generator is in non-speculative
-		 mode, if so the instruction fault is declared, otherwise, the
-		 error is shunted because instruction faults need to be masked on
-		 the mis-speculated instruction paths */
+	 with a test to see if the trace generator is in non-speculative
+	 mode, if so the instruction fault is declared, otherwise, the
+	 error is shunted because instruction faults need to be masked on
+	 the mis-speculated instruction paths */
 #define DECLARE_FAULT(FAULT)						\
 	{								\
 		if (!spec_mode)						\
@@ -3914,13 +3909,13 @@ SET_CREATE_VECTOR(odep_name, cv);
 						&& target_PC != pred_PC && br_pred_taken))
 		{
 			/* Either 1) we're simulating perfect prediction and are in a
-					 mis-predict state and need to patch up, or 2) We're not simulating
-					 perfect prediction, we've predicted the branch taken, but our
-					 predicted target doesn't match the computed target (i.e.,
-					 mis-fetch).  Just update the PC values and do a fetch squash.
-					 This is just like calling fetch_squash() except we pre-anticipate
-					 the updates to the fetch values at the end of this function.  If
-					 case #2, also charge a mispredict penalty for redirecting fetch */
+				 mis-predict state and need to patch up, or 2) We're not simulating
+				 perfect prediction, we've predicted the branch taken, but our
+				 predicted target doesn't match the computed target (i.e.,
+				 mis-fetch).  Just update the PC values and do a fetch squash.
+				 This is just like calling fetch_squash() except we pre-anticipate
+				 the updates to the fetch values at the end of this function.  If
+				 case #2, also charge a mispredict penalty for redirecting fetch */
 			fetch_pred_PC = fetch_regs_PC = regs.regs_NPC;
 			/* was: if (pred_perfect) */
 			if (pred_perfect)
@@ -3940,18 +3935,18 @@ SET_CREATE_VECTOR(odep_name, cv);
 		if (op != MD_NOP_OP)
 		{
 			/* for load/stores:
-			 idep #0     - store operand (value that is store'ed)
-			 idep #1, #2 - eff addr computation inputs (addr of access)
+		 idep #0     - store operand (value that is store'ed)
+		 idep #1, #2 - eff addr computation inputs (addr of access)
 
-		 resulting RUU/LSQ operation pair:
-			 RUU (effective address computation operation):
-	 idep #0, #1 - eff addr computation inputs (addr of access)
-			 LSQ (memory access operation):
-	 idep #0     - operand input (value that is store'd)
-	 idep #1     - eff addr computation result (from RUU op)
+	 resulting RUU/LSQ operation pair:
+		 RUU (effective address computation operation):
+ idep #0, #1 - eff addr computation inputs (addr of access)
+		 LSQ (memory access operation):
+ idep #0     - operand input (value that is store'd)
+ idep #1     - eff addr computation result (from RUU op)
 
-		 effective address computation is transfered via the reserved
-		 name DTMP
+	 effective address computation is transfered via the reserved
+	 name DTMP
 			 */
 
 			/* fill in RUU reservation station */
@@ -4100,22 +4095,20 @@ SET_CREATE_VECTOR(odep_name, cv);
 #endif
 
 			/* if this is a branching instruction update BTB, i.e., only
-		 non-speculative state is committed into the BTB */
+	 non-speculative state is committed into the BTB */
 			if (MD_OP_FLAGS(op) & F_CTRL)
 			{
 				sim_num_branches++;
 				if (pred && bpred_spec_update == spec_ID)
 				{
 					bpred_update(pred,
-							/* branch address */regs.regs_PC,
-							/* actual target address */regs.regs_NPC,
-							/* taken? */regs.regs_NPC != (regs.regs_PC +
-									sizeof(md_inst_t)),
-									/* pred taken? */pred_PC != (regs.regs_PC +
-											sizeof(md_inst_t)),
-											/* correct pred? */pred_PC == regs.regs_NPC,
-											/* opcode */op,
-											/* predictor update ptr */&rs->dir_update);
+							regs.regs_PC,														/* branch address */
+							regs.regs_NPC,										/* actual target address */
+							regs.regs_NPC != (regs.regs_PC + sizeof(md_inst_t)),/* taken? */
+							pred_PC != (regs.regs_PC + sizeof(md_inst_t)), /* pred taken? */
+							pred_PC == regs.regs_NPC, 								/* correct pred? */
+							op, 																						/* opcode */
+							&rs->dir_update);									/* predictor update ptr */
 				}
 			}
 
@@ -4236,7 +4229,7 @@ static int last_inst_missed = FALSE;
 static int last_inst_tmissed = FALSE;
 
 /* fetch up as many instruction as one branch prediction and one cache line
- acess will support without overflowing the IFETCH -> DISPATCH QUEUE */
+acess will support without overflowing the IFETCH -> DISPATCH QUEUE */
 static void ruu_fetch(void)
 {
 	int i, lat, tlb_lat, done = FALSE;
@@ -4247,10 +4240,10 @@ static void ruu_fetch(void)
 	for (i=0, branch_cnt=0;
 			/* fetch up to as many instruction as the DISPATCH stage can decode */
 			i < (ruu_decode_width * fetch_speed)
-				 /* fetch until IFETCH -> DISPATCH queue fills */
-				 && fetch_num < ruu_ifq_size
-				 /* and no IFETCH blocking condition encountered */
-				 && !done;
+					 /* fetch until IFETCH -> DISPATCH queue fills */
+					 && fetch_num < ruu_ifq_size
+					 /* and no IFETCH blocking condition encountered */
+					 && !done;
 			i++)
 	{
 		/* fetch an instruction at the next predicted fetch address */
@@ -4280,7 +4273,7 @@ static void ruu_fetch(void)
 			if (itlb)
 			{
 				/* access the I-TLB, NOTE: this code will initiate
-	 speculative TLB misses */
+ speculative TLB misses */
 				tlb_lat =
 						cache_access(itlb, Read, IACOMPRESS(fetch_regs_PC),
 								NULL, ISCOMPRESS(sizeof(md_inst_t)), sim_cycle,
@@ -4318,18 +4311,23 @@ static void ruu_fetch(void)
 			MD_SET_OPCODE(op, inst);
 
 			/* get the next predicted fetch address; only use branch predictor
-		 result for branches (assumes pre-decode bits); NOTE: returned
-		 value may be 1 if bpred can only predict a direction */
-			if (MD_OP_FLAGS(op) & F_CTRL)
-				fetch_pred_PC =
-						bpred_lookup(pred,
-								/* branch address */fetch_regs_PC,
-								/* target address *//* FIXME: not computed */0,
-								/* opcode */op,
-								/* call? */MD_IS_CALL(op),
-								/* return? */MD_IS_RETURN(op),
-								/* updt */&(fetch_data[fetch_tail].dir_update),
-								/* RSB index */&stack_recover_idx);
+				 result for branches (assumes pre-decode bits); NOTE: returned
+				 value may be 1 if bpred can only predict a direction */
+			if (MD_OP_FLAGS(op) & F_CTRL) {
+				fetch_pred_PC = bpred_lookup(pred,
+								fetch_regs_PC,	/* branch address */
+								0,					/* target address *//* FIXME: not computed */
+								op,																				/* opcode */
+								MD_IS_CALL(op),														/* call? */
+								MD_IS_RETURN(op),													/* return? */
+								&(fetch_data[fetch_tail].dir_update),		  /* updt */
+								&stack_recover_idx);										 	/* RSB index */
+
+				// @587: Print trace the of RUU fetch to branch prediction
+				info("587: Fetch branch predict: %d %d", 	fetch_regs_PC,
+																									fetch_pred_PC);
+
+			}
 			else
 				fetch_pred_PC = 0;
 
@@ -4350,7 +4348,7 @@ static void ruu_fetch(void)
 		else
 		{
 			/* no predictor, just default to predict not taken, and
-		 continue fetching instructions linearly */
+				 continue fetching instructions linearly */
 			fetch_pred_PC = fetch_regs_PC + sizeof(md_inst_t);
 		}
 
@@ -4467,7 +4465,7 @@ simoo_mstate_obj(FILE *stream,			/* output stream */
 void sim_main(void)
 {
 	/* ignore any floating point exceptions, they may occur on mis-speculated
-	 execution paths */
+ execution paths */
 	signal(SIGFPE, SIG_IGN);
 
 	/* set up program entry state */
@@ -4481,11 +4479,11 @@ void sim_main(void)
 
 	// @587: Print message for starting simulation
 	info("-------------------------------------------------------------");
-	info("587: Starting out-of-order simulation...");
+	info("587: Starting out-of-order simulation");
 	info("-------------------------------------------------------------\n");
 
 	/* fast forward simulator loop, performs functional simulation for
-	 FASTFWD_COUNT insts, then turns on performance (timing) simulation */
+ FASTFWD_COUNT insts, then turns on performance (timing) simulation */
 	if (fastfwd_count > 0)
 	{
 		int icount;
@@ -4573,7 +4571,7 @@ void sim_main(void)
 	regs.regs_PC = regs.regs_PC - sizeof(md_inst_t);
 
 	/* main simulator loop, NOTE: the pipe stages are traverse in reverse order
-	 to eliminate this/next state synchronization and relaxation problems */
+		 to eliminate this/next state synchronization and relaxation problems */
 	for (;;)
 	{
 		/* RUU/LSQ sanity checks */
@@ -4654,5 +4652,5 @@ void sim_main(void)
 /* print simulator-specific configuration information */
 void sim_aux_config(FILE *stream)            /* output stream */
 {
-/* nada */
+	/* nada */
 }
