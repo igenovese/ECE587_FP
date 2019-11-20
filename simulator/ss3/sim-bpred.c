@@ -215,7 +215,6 @@ void sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 	// @587: Check that we get here
 	info("587: sim-bpred.c check options. Pred type: %s", pred_type);
 
-
 	if (!mystricmp(pred_type, "taken"))
 	{
 		/* static predictor, not taken */
