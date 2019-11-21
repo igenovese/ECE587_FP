@@ -219,7 +219,7 @@ struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
 
 	pred->class = class;
 
-	// @587: Verify we create the 2-level combination predictor
+	// @587: print verification we create the 2-level combination predictor
 	info("587: Creating 2-level combination predictor");
 
 	switch (class) {
@@ -764,7 +764,7 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 
 			// @587: Print to test if we get we are using the 2LComb to do the prediction.
 			//			 Verified. Yes we do get here to do the prediction.
-			info("587: 2LComb prediction lookup");
+			//info("587: 2LComb prediction lookup");
 
 			// Countess returned from the branch prediction
 			char *twolev_a, *twolev_b, *meta;
@@ -782,7 +782,7 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 			dir_update_ptr->dir.b_twolev  = (*twolev_b >= 2);
 
 			// @587: Print lookup results
-			info("587: 2La: %d, 2Lb: %d, meta: %d", *twolev_a, *twolev_b, *meta);
+			//info("Lookup: %d, 2Lb: %d, meta: %d", *twolev_a, *twolev_b, *meta);
 
 			// Choose between the different predictors based on the result
 			// from the meta predictor
@@ -912,15 +912,20 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 	}
 }
 
+
 /* Speculative execution can corrupt the ret-addr stack.  So for each
  * lookup we return the top-of-stack (TOS) at that point; a mispredicted
  * branch, as part of its recovery, restores the TOS using this value --
- * hopefully this uncorrupts the stack. */
-void
-bpred_recover(struct bpred_t *pred, /* branch predictor instance */
-		md_addr_t baddr,    /* branch address */
-		int stack_recover_idx)  /* Non-speculative top-of-stack;
-		 * used on mispredict recovery */
+ * hopefully this uncorrupts the stack.
+ *
+ * struct bpred_t *pred		:		branch predictor instance
+ * md_addr_t baddr				:		branch address
+ * int stack_recover_idx)	:		Non-speculative top-of-stack
+ * 														used on mispredict recovery
+ */
+void bpred_recover(	struct bpred_t *pred,
+										md_addr_t baddr,
+										int stack_recover_idx)
 {
 	if (pred == NULL)
 		return;
@@ -961,6 +966,9 @@ void bpred_update(struct bpred_t *pred,
 	struct bpred_btb_ent_t *lruhead = NULL, *lruitem = NULL;
 	int index, i;
 
+	// @587: print that we are in the branch update
+	//info("Bupdate: %d %d %d %d %d", baddr, btarget, taken, pred_taken, correct);
+
 	/* don't change bpred state for non-branch instructions or if this
 	 * is a stateless predictor*/
 	if (!(MD_OP_FLAGS(op) & F_CTRL))
@@ -991,11 +999,13 @@ void bpred_update(struct bpred_t *pred,
 		if ( pred->class == BPred2LComb ){
 			if (dir_update_ptr->dir.meta) {
 				pred->used_2lev_b++;
-				info("2-Level B counter: %d", pred->used_2lev_b);
+				// @587: print notice that B predictor was used
+				//info("Meta = %d --> B used", dir_update_ptr->dir.meta);
 			}
 			else{
 				pred->used_2lev_a++;
-				info("2-Level A counter: %d", pred->used_2lev_a);
+				// @587: print notice that A predictor was used
+				//info("Meta = %d --> A used", dir_update_ptr->dir.meta);
 			}
 		}
 		//------------------------------------------------------------------------------------------------------
@@ -1069,10 +1079,12 @@ void bpred_update(struct bpred_t *pred,
 		int l1index, shift_reg;
 
 		/* also update appropriate L1 history register */
-		//[TOCHECK]
 		l1index = (baddr >> MD_BR_SHIFT) & (pred->dirpred.a_twolev->config.two.l1size - 1);
 		shift_reg = (pred->dirpred.a_twolev->config.two.shiftregs[l1index] << 1) | (!!taken);
 		pred->dirpred.a_twolev->config.two.shiftregs[l1index] = shift_reg & ((1 << pred->dirpred.a_twolev->config.two.shift_width) - 1);
+
+		// @587: print update for two level A predictor
+
 
 		l1index = (baddr >> MD_BR_SHIFT) & (pred->dirpred.b_twolev->config.two.l1size - 1);
 		shift_reg = (pred->dirpred.b_twolev->config.two.shiftregs[l1index] << 1) | (!!taken);
@@ -1198,8 +1210,9 @@ void bpred_update(struct bpred_t *pred,
 						--*dir_update_ptr->pmeta;
 				}
 
+				// @587: print update of the meta counter
+				//info("Meta counter update = %d", *dir_update_ptr->pmeta);
 			}
-
 		}
 		//------------------------------------------------------------------------------------------------------
 		else {

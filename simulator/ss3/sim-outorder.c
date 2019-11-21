@@ -4323,10 +4323,8 @@ static void ruu_fetch(void)
 								&(fetch_data[fetch_tail].dir_update),		  /* updt */
 								&stack_recover_idx);										 	/* RSB index */
 
-				// @587: Print trace the of RUU fetch to branch prediction
-				info("587: Fetch branch predict: %d %d", 	fetch_regs_PC,
-																									fetch_pred_PC);
-
+				// @587: Print trace that the RUU fetch to branch prediction
+				//info("587: Fetch branch predict: %d %d", 	fetch_regs_PC, fetch_pred_PC);
 			}
 			else
 				fetch_pred_PC = 0;
