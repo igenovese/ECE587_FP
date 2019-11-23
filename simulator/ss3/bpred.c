@@ -1006,13 +1006,11 @@ void bpred_update(struct bpred_t *pred,
 		if ( pred->class == BPred2LComb ){
 			if (dir_update_ptr->dir.meta) {
 				pred->used_2lev_b++;
-				// @587: print notice that B predictor was used
-				//info("Meta = %d --> B used", dir_update_ptr->dir.meta);
+				//info("2-Level B counter: %d", pred->used_2lev_b);
 			}
 			else{
 				pred->used_2lev_a++;
-				// @587: print notice that A predictor was used
-				//info("Meta = %d --> A used", dir_update_ptr->dir.meta);
+				//info("2-Level A counter: %d", pred->used_2lev_a);
 			}
 		}
 		//------------------------------------------------------------------------------------------------------

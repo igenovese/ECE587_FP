@@ -100,15 +100,17 @@ static int comb_config[1] =
 //------------------------------------------------------------------------------------------------------
 // @587: Set the default initialization for the 2-level combined predictor
 /* Combined 2-level predictor config (<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>) */
-static int comb_twolev_nelt = 8;
-static int comb_twolev_config[8] = { 	8, 			/* a_l1size */
-																			256, 		/* a_l2size */
-																			8,			/* a_hist */
-																			FALSE, 	/* a_xor */
-																			8, 			/* b_l1size */
-																			65536, 	/* b_l2size */
-																			8,			/* b_hist */
-																			FALSE };/* b_xor */
+static int comb_twolev_nelt = 9;
+static int comb_twolev_config[9] = { 	8, 			/* a_l1size */
+										256, 		/* a_l2size */
+										8,			/* a_hist */
+										FALSE, 		/* a_xor */
+										8, 			/* b_l1size */
+										65536, 		/* b_l2size */
+										8,			/* b_hist */
+										FALSE,		/* b_xor */
+										1024		/* meta_table_size*/
+										};	
 
 //------------------------------------------------------------------------------------------------------
 
@@ -187,7 +189,7 @@ void sim_reg_options(struct opt_odb_t *odb)
 	// @587:	What is this?
 	opt_reg_int_list(odb, "-bpred:2lev_comb",
 			"Combined 2-level predictor config "
-			"(<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>)",
+			"(<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor> <meta_table_size>)",
 			comb_twolev_config, comb_twolev_nelt, &comb_twolev_nelt,
 			/* default */comb_twolev_config,
 			/* print */TRUE, /* format */NULL, /* !accrue */FALSE);
@@ -288,7 +290,7 @@ void sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 				/* ret-addr stack size */ras_size);
 	}
 	//------------------------------------------------------------------------------------------------------
-	/* 578: This where the simulator checks the branch predictor type and the input
+	/* 587: This where the simulator checks the branch predictor type and the input
 	 * argument pred_type has been set to our 2-level predictor.
 	 *
 	 * Ryan: I get an error "cannot parse predictor" when running out of order simulator
@@ -297,8 +299,8 @@ void sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 	else if (!mystricmp(pred_type, "2lev_comb"))
 	{
 		/* combining predictor, bpred_create() checks args */
-		if (comb_twolev_nelt != 8)
-			fatal("bad combined 2-level pred config (<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>)");
+		if (comb_twolev_nelt != 9)
+			fatal("bad combined 2-level pred config (<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor> <meta_table_size>)");
 		if (comb_nelt != 1)
 			fatal("bad combining predictor config (<meta_table_size>)");
 		if (btb_nelt != 2)
@@ -309,7 +311,7 @@ void sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 				comb_twolev_config[1], /*A L2 size*/
 				comb_twolev_config[4], /*B L1 size*/
 				comb_twolev_config[5], /*B L2 size*/
-				comb_config[0], /*Meta table size*/
+				comb_twolev_config[8], /*Meta table size*/
 				comb_twolev_config[2], /*A hist size*/
 				comb_twolev_config[6], /*B hist size*/
 				comb_twolev_config[3], /*A xor*/
