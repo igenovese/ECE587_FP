@@ -24,10 +24,11 @@ A_L1_SIZE=4 									# L1 SIZE = N
 A_HIST_SIZE=8									# HIST SIZE = W
 A_L2_SIZE=$((2**($A_L1_SIZE+$A_HIST_SIZE)))		# L2 SIZE = 2^(N+W)
 
+
 # Predictor B = PAg
 B_L1_SIZE=8		# L1 SIZE = N
 B_HIST_SIZE=16	# L2 SIZE = W
-B_L2_SIZE=$(2**$B_HIST_SIZE)
+B_L2_SIZE=$((2**$B_HIST_SIZE))
 
 # Meta Predictor
 META_SIZE=32
@@ -46,7 +47,7 @@ echo $ARGS
 sleep 1
 
 # Run simulator
-#./Run.pl -db ./bench.db -dir results/gcc1 -benchmark gcc -sim $PWD/ss3/sim-outorder -args "-fastfwd 1000000 -max:inst 1000000"
+./Run.pl -db ./bench.db -dir results/gcc1 -benchmark gcc -sim $PWD/ss3/sim-outorder -args "-fastfwd 1000000 -max:inst 1000000"
 ./Run.pl -db ./bench.db -dir results/go 	 -benchmark go 		-sim $PWD/ss3/sim-outorder -args "$ARGS" 2> results/go_2lev_default.out 
 ./Run.pl -db ./bench.db -dir results/gcc	 -benchmark gcc 	-sim $PWD/ss3/sim-outorder -args "$ARGS" 2> results/gcc_2lev_default.out 
 ./Run.pl -db ./bench.db -dir results/m88ksim -benchmark m88ksim -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> results/m88ksim_2lev_default.out 
