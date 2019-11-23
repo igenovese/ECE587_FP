@@ -184,7 +184,7 @@ void sim_reg_options(struct opt_odb_t *odb)
 			/* print */TRUE, /* format */NULL, /* !accrue */FALSE);
 
 	//------------------------------------------------------------------------------------------------------
-	// @587:	What is this?
+	// @587: This where we parse the command line input into the config
 	opt_reg_int_list(odb, "-bpred:2lev_comb",
 			"Combined 2-level predictor config "
 			"(<a_l1size> <a_l2size> <a_hist_size> <a_xor> <b_l1size> <b_l2size> <b_hist_size> <b_xor>)",
@@ -304,6 +304,7 @@ void sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 		if (btb_nelt != 2)
 			fatal("bad btb config (<num_sets> <associativity>)");
 
+#if 0
 		pred = bpred_create_2LComb(BPred2LComb,
 				comb_twolev_config[0], /*A L1 size*/
 				comb_twolev_config[1], /*A L2 size*/
@@ -318,6 +319,7 @@ void sim_check_options(struct opt_odb_t *odb, int argc, char **argv)
 				btb_config[1], /*BTB assoc*/
 				ras_size       /*ret-addr stack size*/
 		);
+#endif
 	}
 	//------------------------------------------------------------------------------------------------------
 

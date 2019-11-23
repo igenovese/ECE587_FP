@@ -85,29 +85,24 @@ bpred_create(enum bpred_class class,  /* type of predictor to create */
 	switch (class) {
 	case BPredComb:
 		/* bimodal component */
-		pred->dirpred.bimod =
-				bpred_dir_create(BPred2bit, bimod_size, 0, 0, 0);
+		pred->dirpred.bimod = bpred_dir_create(BPred2bit, bimod_size, 0, 0, 0);
 
 		/* 2-level component */
-		pred->dirpred.twolev =
-				bpred_dir_create(BPred2Level, l1size, l2size, shift_width, xor);
+		pred->dirpred.twolev = bpred_dir_create(BPred2Level, l1size, l2size, shift_width, xor);
 
 		/* metapredictor component */
-		pred->dirpred.meta =
-				bpred_dir_create(BPred2bit, meta_size, 0, 0, 0);
+		pred->dirpred.meta = bpred_dir_create(BPred2bit, meta_size, 0, 0, 0);
 
 		break;
 
 	case BPred2Level:
-		pred->dirpred.twolev =
-				bpred_dir_create(class, l1size, l2size, shift_width, xor);
+		pred->dirpred.twolev = bpred_dir_create(class, l1size, l2size, shift_width, xor);
 
 		break;
 
 	case BPred2bit:
-		pred->dirpred.bimod =
-				bpred_dir_create(class, bimod_size, 0, 0, 0);
-
+		pred->dirpred.bimod = bpred_dir_create(class, bimod_size, 0, 0, 0);
+		break;
 	case BPredTaken:
 	case BPredNotTaken:
 		/* no other state */
@@ -181,7 +176,7 @@ bpred_create(enum bpred_class class,  /* type of predictor to create */
  *	Description:	Creates the two level branch predictor and initialize
  *			 		the predictor componen
  *
- *	Inputs:			a_l1size		Predictor A level-1 table size
+ *	Inputs:	a_l1size		Predictor A level-1 table size
  *					a_l2size		Predictor A level-2 table size
  *					b_l1size		Predictor B level-1 table size
  *					b_l2size		Predictor B level-2 table size
@@ -196,22 +191,41 @@ bpred_create(enum bpred_class class,  /* type of predictor to create */
  *
  *	Returns: 		Allocated and initialized branch predictor input
  */
+#if 0
 struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
 		unsigned int a_l1size,
 		unsigned int a_l2size,
+		unsigned int a_shift_width,
+		unsigned int a_xor,
 		unsigned int b_l1size,
 		unsigned int b_l2size,
-		unsigned int meta_size,
-		unsigned int a_shift_width,
 		unsigned int b_shift_width,
-		unsigned int a_xor,
 		unsigned int b_xor,
+		unsigned int meta_size,
+		unsigned int btb_sets,
+		unsigned int btb_assoc,
+		unsigned int retstack_size)
+{
+#endif
+struct bpred_t * bpred_create_2LComb(
+		twolevel_config config_2lcomb,
 		unsigned int btb_sets,
 		unsigned int btb_assoc,
 		unsigned int retstack_size)
 {
 
 	struct bpred_t *pred;
+
+	enum bpred_class class = config_2lcomb.class;
+	unsigned int a_l1size = config_2lcomb.a_l1size;
+	unsigned int a_l2size = config_2lcomb.a_l2size;
+	unsigned int a_shift_width = config_2lcomb.a_histsize;
+	unsigned int a_xor = config_2lcomb.a_xor;
+	unsigned int b_l1size = config_2lcomb.b_l1size;
+	unsigned int b_l2size = config_2lcomb.b_l2size;
+	unsigned int b_shift_width = config_2lcomb.b_histsize;
+	unsigned int b_xor = config_2lcomb.b_xor;
+	unsigned int meta_size = config_2lcomb.metasize;
 
 	// check if there is enough memory for the predictor structure
 	if (!(pred = calloc(1, sizeof(struct bpred_t))))
@@ -221,6 +235,19 @@ struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
 
 	// @587: print verification we create the 2-level combination predictor
 	info("587: Creating 2-level combination predictor");
+	info("Predictor A: PAg");
+	info("History size = %d", a_shift_width);
+	info("L1 size      = %d", a_l1size);
+	info("L2 size      = %d", a_l2size);
+	info("XOR          = %d\n", a_xor);
+	info("Predictor B: PAp");
+	info("History size = %d", b_shift_width);
+	info("L1 size      = %d", b_l1size);
+	info("L2 size      = %d", b_l2size);
+	info("XOR          = %d\n", b_xor);
+	info("Meta Size    = %d", meta_size);
+	info("----------------------------------");
+
 
 	switch (class) {
 	case BPred2LComb:
@@ -273,18 +300,16 @@ struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
 
 	//return created predictor
 	return pred;
-
-
 }
 
 //------------------------------------------------------------------------------------------------------
 /* @587:	Create the two level branch predictor
  *
- * Inputs:		    bpred_class class type of predictor to create
- * 					l1size    level-1 table size
- * 					l2size    level-2 table size (if relevant)
- * 					shift_width history register width
- * 					xor       history xor address flag
+ * Inputs:	class 				type of predictor to create
+ * 					l1size    		level-1 table size
+ * 					l2size    		level-2 table size (if relevant)
+ * 					shift_width 	history register width
+ * 					xor       		history xor address flag
  *
  * Returns:			Created branch predictor structure
  */
@@ -347,8 +372,7 @@ struct bpred_dir_t * bpred_dir_create (	enum bpred_class class,
 			fatal("2bit table size, `%d', must be non-zero and a power of two",
 					l1size);
 		pred_dir->config.bimod.size = l1size;
-		if (!(pred_dir->config.bimod.table =
-				calloc(l1size, sizeof(unsigned char))))
+		if (!(pred_dir->config.bimod.table = calloc(l1size, sizeof(unsigned char))))
 			fatal("cannot allocate 2bit storage");
 		/* initialize counters to weakly this-or-that */
 		flipflop = 1;
@@ -372,12 +396,11 @@ struct bpred_dir_t * bpred_dir_create (	enum bpred_class class,
 	return pred_dir;
 }
 
+
 /* print branch direction predictor configuration */
-void
-bpred_dir_config(
-		struct bpred_dir_t *pred_dir, /* branch direction predictor instance */
-		char name[],      /* predictor name */
-		FILE *stream)     /* output stream */
+void bpred_dir_config(	struct bpred_dir_t *pred_dir, /* branch direction predictor instance */
+												char name[],      /* predictor name */
+												FILE *stream)     /* output stream */
 {
 	switch (pred_dir->class) {
 	case BPred2Level:
@@ -406,9 +429,8 @@ bpred_dir_config(
 }
 
 /* print branch predictor configuration */
-void
-bpred_config(struct bpred_t *pred,  /* branch predictor instance */
-		FILE *stream)    /* output stream */
+void bpred_config(struct bpred_t *pred,  /* branch predictor instance */
+		FILE *stream)    										 /* output stream */
 {
 	switch (pred->class) {
 	case BPredComb:
@@ -455,9 +477,8 @@ bpred_config(struct bpred_t *pred,  /* branch predictor instance */
 }
 
 /* print predictor stats */
-void
-bpred_stats(struct bpred_t *pred, /* branch predictor instance */
-		FILE *stream)   /* output stream */
+void bpred_stats(	struct bpred_t *pred, /* branch predictor instance */
+									FILE *stream)   			/* output stream */
 {
 	fprintf(stream, "pred: addr-prediction rate = %f\n",
 			(double)pred->addr_hits/(double)(pred->addr_hits+pred->misses));
@@ -466,9 +487,8 @@ bpred_stats(struct bpred_t *pred, /* branch predictor instance */
 }
 
 /* register branch predictor stats */
-void
-bpred_reg_stats(struct bpred_t *pred, /* branch predictor instance */
-		struct stat_sdb_t *sdb) /* stats database */
+void bpred_reg_stats(	struct bpred_t *pred, 	/* branch predictor instance */
+											struct stat_sdb_t *sdb) /* stats database */
 {
 	char buf[512], buf1[512], *name;
 
@@ -609,7 +629,7 @@ void bpred_after_priming(struct bpred_t *bpred)
 	bpred->used_2lev = 0;
 	//--------------------
 	// @587:	This where we initialize the counters that track which predictor
-	//			was used during execution.
+	//				was used during execution.
 	bpred->used_2lev_a = 0;
 	bpred->used_2lev_b = 0;
 	//--------------------
@@ -637,6 +657,7 @@ void bpred_after_priming(struct bpred_t *bpred)
 char * bpred_dir_lookup(struct bpred_dir_t *pred_dir, md_addr_t baddr)
 {
 	unsigned char *p = NULL;
+	int hash = 0;
 
 	/* Except for jumps, get a pointer to direction-prediction bits */
 	switch (pred_dir->class) {
@@ -649,24 +670,23 @@ char * bpred_dir_lookup(struct bpred_dir_t *pred_dir, md_addr_t baddr)
 			l2index = pred_dir->config.two.shiftregs[l1index];
 			if (pred_dir->config.two.xor)
 			{
-			#if 1
+#if 1
 			/* this L2 index computation is more "compatible" to McFarling's
 				 verison of it, i.e., if the PC xor address component is only
 				 part of the index, take the lower order address bits for the
 				 other part of the index, rather than the higher order ones */
-				l2index = (((l2index ^ (baddr >> MD_BR_SHIFT))
-					& ((1 << pred_dir->config.two.shift_width) - 1))
-					| ((baddr >> MD_BR_SHIFT)
-							<< pred_dir->config.two.shift_width));
+				l2index = (l2index ^ (baddr >> MD_BR_SHIFT));
+				l2index &= ((1 << pred_dir->config.two.shift_width) - 1);
+				l2index |= ((baddr >> MD_BR_SHIFT) << pred_dir->config.two.shift_width);
+
+				//l2index = (((l2index ^ (baddr >> MD_BR_SHIFT)) & ((1 << pred_dir->config.two.shift_width) - 1)) | ((baddr >> MD_BR_SHIFT) << pred_dir->config.two.shift_width));
 #else
-	l2index = l2index ^ (baddr >> MD_BR_SHIFT);
+				l2index = l2index ^ (baddr >> MD_BR_SHIFT);
 #endif
 			}
 			else
 			{
-				l2index =
-					l2index
-					| ((baddr >> MD_BR_SHIFT) << pred_dir->config.two.shift_width);
+				l2index = l2index | ((baddr >> MD_BR_SHIFT) << pred_dir->config.two.shift_width);
 			}
 			l2index = l2index & (pred_dir->config.two.l2size - 1);
 
@@ -674,8 +694,11 @@ char * bpred_dir_lookup(struct bpred_dir_t *pred_dir, md_addr_t baddr)
 			p = &pred_dir->config.two.l2table[l2index];
 		}
 		break;
+		// 2-bit prediction make a prediction based on the BIMOD hash function and
+		// use to access the table
 		case BPred2bit:
-			p = &pred_dir->config.bimod.table[BIMOD_HASH(pred_dir, baddr)];
+			hash = BIMOD_HASH(pred_dir, baddr);
+			p = &pred_dir->config.bimod.table[hash];
 			break;
 		case BPredTaken:
 		case BPredNotTaken:
@@ -734,6 +757,7 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 	dir_update_ptr->pdir1 = NULL;
 	dir_update_ptr->pdir2 = NULL;
 	dir_update_ptr->pmeta = NULL;
+
 	/* Except for jumps, get a pointer to direction-prediction bits */
 	switch (pred->class) {
 	case BPredComb:
@@ -762,24 +786,19 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 	case BPred2LComb:
 		if ((MD_OP_FLAGS(op) & (F_CTRL|F_UNCOND)) != (F_CTRL|F_UNCOND)){
 
-			// @587: Print to test if we get we are using the 2LComb to do the prediction.
-			//			 Verified. Yes we do get here to do the prediction.
-			//info("587: 2LComb prediction lookup");
-
-			// Countess returned from the branch prediction
+			// Counters returned from the branch prediction
 			char *twolev_a, *twolev_b, *meta;
 
 			// Perform the predictions for each 2-level predictor
 			twolev_a = bpred_dir_lookup (pred->dirpred.a_twolev, baddr);
 			twolev_b = bpred_dir_lookup (pred->dirpred.b_twolev, baddr);
-			// Perform the prediction for the meta predictor
 			meta = bpred_dir_lookup (pred->dirpred.meta, baddr);
 
+			// Fill in the branch prediction update information
 			dir_update_ptr->pmeta = meta;
-			// Set the state of the predictions as taken/not taken
-			dir_update_ptr->dir.meta      = (*meta >= 2);
-			dir_update_ptr->dir.a_twolev  = (*twolev_a >= 2);
-			dir_update_ptr->dir.b_twolev  = (*twolev_b >= 2);
+			dir_update_ptr->dir.meta      = (*meta >= 2);     // predictor A or B
+			dir_update_ptr->dir.a_twolev  = (*twolev_a >= 2); // predict taken or not-taken
+			dir_update_ptr->dir.b_twolev  = (*twolev_b >= 2); // predict taken or not-taken
 
 			// @587: Print lookup results
 			//info("Lookup: %d, 2Lb: %d, meta: %d", *twolev_a, *twolev_b, *meta);
@@ -787,7 +806,7 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 			// Choose between the different predictors based on the result
 			// from the meta predictor
 			if (*meta >= 2){
-				// update the predictions as taken/not taken
+				// update the prediction direction
 				dir_update_ptr->pdir1 = twolev_b;
 				dir_update_ptr->pdir2 = twolev_a;
 			}
@@ -801,15 +820,13 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 	case BPred2Level:
 		if ((MD_OP_FLAGS(op) & (F_CTRL|F_UNCOND)) != (F_CTRL|F_UNCOND))
 		{
-			dir_update_ptr->pdir1 =
-					bpred_dir_lookup (pred->dirpred.twolev, baddr);
+			dir_update_ptr->pdir1 = bpred_dir_lookup (pred->dirpred.twolev, baddr);
 		}
 		break;
 	case BPred2bit:
 		if ((MD_OP_FLAGS(op) & (F_CTRL|F_UNCOND)) != (F_CTRL|F_UNCOND))
 		{
-			dir_update_ptr->pdir1 =
-					bpred_dir_lookup (pred->dirpred.bimod, baddr);
+			dir_update_ptr->pdir1 = bpred_dir_lookup (pred->dirpred.bimod, baddr);
 		}
 		break;
 	case BPredTaken:
@@ -969,12 +986,14 @@ void bpred_update(struct bpred_t *pred,
 	// @587: print that we are in the branch update
 	//info("Bupdate: %d %d %d %d %d", baddr, btarget, taken, pred_taken, correct);
 
-	/* don't change bpred state for non-branch instructions or if this
-	 * is a stateless predictor*/
+	// don't change bpred state for non-branch instructions or if this is a stateless predictor
 	if (!(MD_OP_FLAGS(op) & F_CTRL))
 		return;
 
-	/* Have a branch here */
+	// For all branch instructions after this
+
+	// if the prediction was correct, then increment the hit counter
+	// (if predicted PC == next PC)
 	if (correct)
 		pred->addr_hits++;
 
@@ -990,12 +1009,13 @@ void bpred_update(struct bpred_t *pred,
 		if (correct)
 			pred->ras_hits++;
 	}
+	// otherwise, if this is a jump return instruction????
+	// Ryan: So we are saying that if this is a jump return instruction, we update the branch predictor?
 	else if ((MD_OP_FLAGS(op) & (F_CTRL|F_COND)) == (F_CTRL|F_COND))
 	{
 		//------------------------------------------------------------------------------------------------------
-		// @587:	If the op code is a control or conditional change instruction
-		// If we are using the two level combinational predictor
-		// increment the stat counter on which predictor was used
+		// @587:	We only get here on Jump Return instructions
+
 		if ( pred->class == BPred2LComb ){
 			if (dir_update_ptr->dir.meta) {
 				pred->used_2lev_b++;
@@ -1082,9 +1102,6 @@ void bpred_update(struct bpred_t *pred,
 		l1index = (baddr >> MD_BR_SHIFT) & (pred->dirpred.a_twolev->config.two.l1size - 1);
 		shift_reg = (pred->dirpred.a_twolev->config.two.shiftregs[l1index] << 1) | (!!taken);
 		pred->dirpred.a_twolev->config.two.shiftregs[l1index] = shift_reg & ((1 << pred->dirpred.a_twolev->config.two.shift_width) - 1);
-
-		// @587: print update for two level A predictor
-
 
 		l1index = (baddr >> MD_BR_SHIFT) & (pred->dirpred.b_twolev->config.two.l1size - 1);
 		shift_reg = (pred->dirpred.b_twolev->config.two.shiftregs[l1index] << 1) | (!!taken);
@@ -1196,21 +1213,31 @@ void bpred_update(struct bpred_t *pred,
 		//------------------------------------------------------------------------------------------------------
 		// @587: This is where we update the meta predictor based on the result and the prediction?
 		if( pred->class == BPred2LComb ){
-			//[TOCHECK]
+
+			// If the predictions for predictor-A and predictor-B don't match
+			// Update the meta predictor
 			if (dir_update_ptr->dir.a_twolev != dir_update_ptr->dir.b_twolev){
-				/* we only update meta predictor if directions were different */
+
+				// if predictor-B updates predicted taken
 				if (dir_update_ptr->dir.b_twolev == (unsigned int)taken){
-					/* A 2-level predictor was correct */
+
+					//
 					if (*dir_update_ptr->pmeta < 3)
 						++*dir_update_ptr->pmeta;
 				}
+				// other
 				else{
-					/* A 2-level predictor was correct*/
+
+					// decrement the meta counter within the saturation bounds
 					if (*dir_update_ptr->pmeta > 0)
 						--*dir_update_ptr->pmeta;
 				}
 
 				// @587: print update of the meta counter
+				//info("Meta counter update = %d", *dir_update_ptr->pmeta);
+			}
+			// otherwise, the predictions match so no change to the meta predictor
+			else {
 				//info("Meta counter update = %d", *dir_update_ptr->pmeta);
 			}
 		}

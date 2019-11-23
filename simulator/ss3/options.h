@@ -78,41 +78,41 @@ enum opt_class_t {
 /* user-specified option definition */
 struct opt_opt_t {
   struct opt_opt_t *next;	/* next option */
-  char *name;			/* option name, e.g., "-foo:bar" */
-  char *desc;			/* option description */
-  int nvars;			/* > 1 if var for list options */
-  int *nelt;			/* number of elements parsed */
-  char *format;			/* option value print format */
-  int print;			/* print option during `-dumpconfig'? */
-  int accrue;			/* accrue list across uses */
+  char *name;							/* option name, e.g., "-foo:bar" */
+  char *desc;							/* option description */
+  int nvars;							/* > 1 if var for list options */
+  int *nelt;							/* number of elements parsed */
+  char *format;						/* option value print format */
+  int print;							/* print option during `-dumpconfig'? */
+  int accrue;							/* accrue list across uses */
   enum opt_class_t oc;		/* class of this option */
+
   union opt_variant_t {
-    /* oc == oc_int */
-    struct opt_for_int_t {
-      int *var;			/* pointer to integer option */
+    struct opt_for_int_t {	/* oc == oc_int */
+      int *var;							/* pointer to integer option */
     } for_int;
-    /* oc == oc_uint */
-    struct opt_for_uint_t {
-      unsigned int *var;	/* pointer to unsigned integer option */
+
+    struct opt_for_uint_t {	/* oc == oc_uint */
+      unsigned int *var;		/* pointer to unsigned integer option */
     } for_uint;
-    /* oc == oc_float */
-    struct opt_for_float_t {
-      float *var;		/* pointer to float option */
+
+    struct opt_for_float_t {	/* oc == oc_float */
+      float *var;							/* pointer to float option */
     } for_float;
-    /* oc == oc_double */
-    struct opt_for_double_t {
-      double *var;		/* pointer to double option */
+
+    struct opt_for_double_t {	/* oc == oc_double */
+      double *var;						/* pointer to double option */
     } for_double;
-    /* oc == oc_enum, oc_flag */
-    struct opt_for_enum_t {
-      int *var;			/* ptr to *int* enum option, NOTE: AN INT */
-      char **emap;		/* array of enum strings */
-      int *eval;		/* optional array of enum values */
-      int emap_sz;		/* number of enum's in arrays */
+
+    struct opt_for_enum_t {		/* oc == oc_enum, oc_flag */
+      int *var;								/* ptr to *int* enum option, NOTE: AN INT */
+      char **emap;						/* array of enum strings */
+      int *eval;							/* optional array of enum values */
+      int emap_sz;						/* number of enum's in arrays */
     } for_enum;
-    /* oc == oc_string */
-    struct opt_for_string_t {
-      char **var;		/* pointer to string pointer option */
+
+    struct opt_for_string_t {	/* oc == oc_string */
+      char **var;							/* pointer to string pointer option */
     } for_string;
   } variant;
 };

@@ -4,7 +4,7 @@ cd ss3
 make clean
 make
 cd ..
-sleep 5
+sleep 1
 
 # Print current working directory
 echo "Current directory is: $PWD"
@@ -18,8 +18,8 @@ ARGS="-fastfwd 1000000"
 ARGS+=" -max:inst 1000000"
 
 # Set the branch predictor
-ARGS+=" -bpred 2lev_comb"
-
+ARGS+=" -bpred:2lev_comb 8 32 16 8 256 65535 1024"
+#ARGS+=" -bpred:2lev 4 16 32 0"
 
 
 
