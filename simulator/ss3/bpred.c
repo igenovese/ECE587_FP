@@ -213,14 +213,23 @@ struct bpred_t * bpred_create_2LComb( 	enum bpred_class class,
 
 	struct bpred_t *pred;
 
+	// @587: print verification we create the 2-level combination predictor
+	info("587: Creating 2-level combination predictor");
+	info("     Predictor A: Pap");
+	info("       A L1 Size:      %d", a_l1size);
+	info("       A L2 Size:      %d", a_l2size);
+	info("       A History Size: %d", a_shift_width);
+	info("     Predictor B: Pag");
+	info("       B L1 Size:      %d", b_l1size);
+	info("       B L2 Size:      %d", b_l2size);
+	info("       B History Size: %d", b_shift_width);
+	info("       Meta Size:      %d\n", meta_size);
+
 	// check if there is enough memory for the predictor structure
 	if (!(pred = calloc(1, sizeof(struct bpred_t))))
 		fatal("out of virtual memory");
 
 	pred->class = class;
-
-	// @587: print verification we create the 2-level combination predictor
-	info("587: Creating 2-level combination predictor");
 
 	switch (class) {
 	case BPred2LComb:
@@ -406,8 +415,7 @@ bpred_dir_config(
 }
 
 /* print branch predictor configuration */
-void
-bpred_config(struct bpred_t *pred,  /* branch predictor instance */
+void bpred_config(struct bpred_t *pred,  /* branch predictor instance */
 		FILE *stream)    /* output stream */
 {
 	switch (pred->class) {
@@ -455,8 +463,7 @@ bpred_config(struct bpred_t *pred,  /* branch predictor instance */
 }
 
 /* print predictor stats */
-void
-bpred_stats(struct bpred_t *pred, /* branch predictor instance */
+void bpred_stats(struct bpred_t *pred, /* branch predictor instance */
 		FILE *stream)   /* output stream */
 {
 	fprintf(stream, "pred: addr-prediction rate = %f\n",

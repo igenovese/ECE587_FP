@@ -291,6 +291,7 @@ int main(int argc, char **argv, char **envp)
 
   /* FIXME: add stats intervals and max insts... */
 
+  // @587: turn off the printing of the register options
   /* register all simulator-specific options */
   sim_reg_options(sim_odb);
 
