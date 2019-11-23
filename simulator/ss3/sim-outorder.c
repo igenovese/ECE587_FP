@@ -1,3 +1,28 @@
+
+Skip to content
+Pull requests
+Issues
+Marketplace
+Explore
+@ryan-b2000
+
+2
+0
+
+    0
+
+igenovese/ECE587_FP
+Code
+Issues 0
+Pull requests 1
+Actions
+Projects 0
+Wiki
+Security
+Insights
+ECE587_FP/simulator/ss3/sim-outorder.c
+@igenovese igenovese Added configuration for meta size. Commented prints. Added benchmarks… 443195b 33 minutes ago
+4671 lines (3991 sloc) 136 KB
 /* sim-outorder.c - sample out-of-order issue perf simulator implementation */
 
 /* SimpleScalar(TM) Tool Suite
@@ -2030,13 +2055,9 @@ for (link = ready_queue; link != NULL; link = link->next)
 
 /* insert ready node into the ready list using ready instruction scheduling
 policy; currently the following scheduling policy is enforced:
-
  memory and long latency operands, and branch instructions first
-
 then
-
  all other instructions, oldest instructions first
-
 this policy works well because branches pass through the machine quicker
 which works to reduce branch misprediction latencies, and very long latency
 instructions (such loads and multiplies) get priority since they are very
@@ -3952,14 +3973,12 @@ and input and output dependence chains are updated accordingly */
 			/* for load/stores:
 		 idep #0     - store operand (value that is store'ed)
 		 idep #1, #2 - eff addr computation inputs (addr of access)
-
 	 resulting RUU/LSQ operation pair:
 		 RUU (effective address computation operation):
  idep #0, #1 - eff addr computation inputs (addr of access)
 		 LSQ (memory access operation):
  idep #0     - operand input (value that is store'd)
  idep #1     - eff addr computation result (from RUU op)
-
 	 effective address computation is transfered via the reserved
 	 name DTMP
 			 */

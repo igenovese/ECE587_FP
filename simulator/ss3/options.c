@@ -729,8 +729,7 @@ opt_reg_string(struct opt_odb_t *odb,	/* option data base */
 }
 
 /* register a string option array */
-void
-opt_reg_string_list(struct opt_odb_t *odb,/* option data base */
+void opt_reg_string_list(struct opt_odb_t *odb,/* option data base */
 		    char *name,		/* option name */
 		    char *desc,		/* option description */
 		    char **vars,	/* pointer to option string array */
