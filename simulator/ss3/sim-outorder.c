@@ -1,28 +1,3 @@
-
-Skip to content
-Pull requests
-Issues
-Marketplace
-Explore
-@ryan-b2000
-
-2
-0
-
-    0
-
-igenovese/ECE587_FP
-Code
-Issues 0
-Pull requests 1
-Actions
-Projects 0
-Wiki
-Security
-Insights
-ECE587_FP/simulator/ss3/sim-outorder.c
-@igenovese igenovese Added configuration for meta size. Commented prints. Added benchmarks… 443195b 33 minutes ago
-4671 lines (3991 sloc) 136 KB
 /* sim-outorder.c - sample out-of-order issue perf simulator implementation */
 
 /* SimpleScalar(TM) Tool Suite
@@ -614,12 +589,14 @@ return tlb_miss_lat;
 /* register simulator-specific options */
 void sim_reg_options(struct opt_odb_t *odb)
 {
+#if 0
 opt_reg_header(odb,
 		"sim-outorder: This simulator implements a very detailed out-of-order issue\n"
 		"superscalar processor with a two-level memory system and speculative\n"
 		"execution support.  This simulator is a performance simulator, tracking the\n"
 		"latency of all pipeline operations.\n"
 );
+#endif
 
 /* instruction limit */
 
@@ -637,6 +614,7 @@ opt_reg_string_list(odb, "-ptrace",
 		ptrace_opts, /* arr_sz */2, &ptrace_nelt, /* default */NULL,
 		/* !print */FALSE, /* format */NULL, /* !accrue */FALSE);
 
+#if 0
 opt_reg_note(odb,
 		"  Pipetrace range arguments are formatted as follows:\n"
 		"\n"
@@ -656,6 +634,7 @@ opt_reg_note(odb,
 		"                -ptrace UXXE.trc :\n"
 		"                -ptrace FOOBAR.trc @main:+278\n"
 );
+#endif
 
 /* ifetch options */
 
@@ -673,7 +652,7 @@ opt_reg_int(odb, "-fetch:speed",
 		/* print */TRUE, /* format */NULL);
 
 /* branch predictor options */
-
+#if 0
 opt_reg_note(odb,
 		"  Branch predictor configuration examples for 2-level predictor:\n"
 		"    Configurations:   N, M, W, X\n"
@@ -689,6 +668,7 @@ opt_reg_note(odb,
 		"      gshare  : 1, W, 2^W, 1\n"
 		"  Predictor `comb' combines a bimodal and a 2-level predictor.\n"
 );
+#endif
 
 opt_reg_string(odb, "-bpred",
 		"branch predictor type {nottaken|taken|perfect|bimod|2lev|comb}",
@@ -794,6 +774,7 @@ opt_reg_string(odb, "-cache:dl1",
 		&cache_dl1_opt, "dl1:128:32:4:l",
 		/* print */TRUE, NULL);
 
+#if 0
 opt_reg_note(odb,
 		"  The cache config parameter <config> has the following format:\n"
 		"\n"
@@ -808,6 +789,7 @@ opt_reg_note(odb,
 		"    Examples:   -cache:dl1 dl1:4096:32:1:l\n"
 		"                -dtlb dtlb:128:4096:32:r\n"
 );
+#endif
 
 opt_reg_int(odb, "-cache:dl1lat",
 		"l1 data cache hit latency (in cycles)",
@@ -829,6 +811,7 @@ opt_reg_string(odb, "-cache:il1",
 		&cache_il1_opt, "il1:512:32:1:l",
 		/* print */TRUE, NULL);
 
+#if 0
 opt_reg_note(odb,
 		"  Cache levels can be unified by pointing a level of the instruction cache\n"
 		"  hierarchy at the data cache hiearchy using the \"dl1\" and \"dl2\" cache\n"
@@ -842,6 +825,7 @@ opt_reg_note(odb,
 		"      -cache:il1 dl1\n"
 		"      -cache:dl1 ul1:256:32:1:l -cache:dl2 ul2:1024:64:2:l\n"
 );
+#endif
 
 opt_reg_int(odb, "-cache:il1lat",
 		"l1 instruction cache hit latency (in cycles)",
