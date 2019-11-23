@@ -764,7 +764,7 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 
 			// @587: Print to test if we get we are using the 2LComb to do the prediction.
 			//			 Verified. Yes we do get here to do the prediction.
-			info("587: 2LComb prediction lookup");
+			//info("587: 2LComb prediction lookup");
 
 			// Countess returned from the branch prediction
 			char *twolev_a, *twolev_b, *meta;
@@ -782,7 +782,7 @@ md_addr_t bpred_lookup(	struct bpred_t *pred,
 			dir_update_ptr->dir.b_twolev  = (*twolev_b >= 2);
 
 			// @587: Print lookup results
-			info("587: 2La: %d, 2Lb: %d, meta: %d", *twolev_a, *twolev_b, *meta);
+			//info("587: 2La: %d, 2Lb: %d, meta: %d", *twolev_a, *twolev_b, *meta);
 
 			// Choose between the different predictors based on the result
 			// from the meta predictor
@@ -991,11 +991,11 @@ void bpred_update(struct bpred_t *pred,
 		if ( pred->class == BPred2LComb ){
 			if (dir_update_ptr->dir.meta) {
 				pred->used_2lev_b++;
-				info("2-Level B counter: %d", pred->used_2lev_b);
+				//info("2-Level B counter: %d", pred->used_2lev_b);
 			}
 			else{
 				pred->used_2lev_a++;
-				info("2-Level A counter: %d", pred->used_2lev_a);
+				//info("2-Level A counter: %d", pred->used_2lev_a);
 			}
 		}
 		//------------------------------------------------------------------------------------------------------
