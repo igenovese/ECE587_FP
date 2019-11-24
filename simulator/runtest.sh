@@ -1,21 +1,18 @@
 #!/bin/bash
 
-#	1. Choose whether to to turn debug on/off
-
-
 
 # Set to true to enable screen output, false to write to file
-DEBUG="true"
+DEBUG="false"
 
 # Branch predictor
 ########################################################################################
-# Predictor A = PAp
+# Predictor A = PAg
 A_L1_SIZE=4 									# L1 SIZE = N
 A_HIST_SIZE=8									# HIST SIZE = W
 A_L2_SIZE=$((2**($A_L1_SIZE+$A_HIST_SIZE)))		# L2 SIZE = 2^(N+W)
 A_XOR=0
 
-# Predictor B = PAg
+# Predictor B = PAp
 B_L1_SIZE=8		# L1 SIZE = N
 B_HIST_SIZE=16	# L2 SIZE = W
 B_L2_SIZE=$((2**$B_HIST_SIZE))
@@ -52,14 +49,16 @@ function make_sim_args {
 # 
 # Defines for the simulation result output files
 RUN="default"
-OUTFILE_GO="results/go_2lev_$RUN.out"
-OUTFILE_GCC="results/gcc_2lev_$RUN.out"
-OUTFILE_M88KSIM="results/m88ksim_2lev_$RUN.out"
-OUTFILE_LI="results/li_2lev_$RUN.out"
-OUTFILE_IJPEG="results/ijpeg_2lev_$RUN.out"
-OUTFILE_PEARL="results/pearl_2lev_$RUN.out"
-OUTFILE_VORTEX="results/vortex_2lev_$RUN.out"
-OUTFILE_FPPPP="results/fpppp_2lev_$RUN.out"
+function make_file_names {
+	OUTFILE_GO="results/go_2lev_$1.out"
+	OUTFILE_GCC="results/gcc_2lev_$1.out"
+	OUTFILE_M88KSIM="results/m88ksim_2lev_$1.out"
+	OUTFILE_LI="results/li_2lev_$1.out"
+	OUTFILE_IJPEG="results/ijpeg_2lev_$1.out"
+	OUTFILE_PEARL="results/pearl_2lev_$1.out"
+	OUTFILE_VORTEX="results/vortex_2lev_$1.out"
+	OUTFILE_FPPPP="results/fpppp_2lev_$1.out"
+}
 
 ###############################################################################################################
 #
@@ -73,11 +72,11 @@ function run_simulations {
 		# Run simulator
 		./Run.pl -db ./bench.db -dir results/go  -benchmark go -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_GO 
 		./Run.pl -db ./bench.db -dir results/gcc -benchmark gcc -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_GCC 
-		#./Run.pl -db ./bench.db -dir results/m88ksim -benchmark m88ksim -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_M88KSIM 
+		./Run.pl -db ./bench.db -dir results/m88ksim -benchmark m88ksim -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_M88KSIM 
 		./Run.pl -db ./bench.db -dir results/li -benchmark li -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_LI 
 		./Run.pl -db ./bench.db -dir results/ijpeg -benchmark ijpeg -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_IJPEG
 		./Run.pl -db ./bench.db -dir results/perl -benchmark perl -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_PEARL 
-		#./Run.pl -db ./bench.db -dir results/vortex -benchmark vortex -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_VORTEX 
+		./Run.pl -db ./bench.db -dir results/vortex -benchmark vortex -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_VORTEX 
 		./Run.pl -db ./bench.db -dir results/fpppp -benchmark fpppp -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_FPPPP 
 	fi	
 }
@@ -95,6 +94,11 @@ function run_simulations {
 #fpppp			->CHECK
 
 
+##############################################################################################################
+#
+# Do a single test of all benchmarks with a specific configuration
+#
+##############################################################################################################
 
 function do_sim_run {
 	A_L1_SIZE=$1
@@ -108,6 +112,7 @@ function do_sim_run {
 	echo "Run ID: $6 PAp: L1 = $A_L1_SIZE, HIST = $A_HIST_SIZE  PAg: L1 = $B_L1_SIZE, HIST = $B_HIST_SIZE  META: $META_SIZE "
 
 	make_sim_args
+	make_file_names $6
 	run_simulations
 }
 
@@ -127,19 +132,20 @@ function do_sim_run {
 sleep 1
 
 # Begin simulations
-RUN="test"
-
 # USE:	Call function do_sim_run() with the function arguments:
-# 		A L1 Size
-#		A History Size
-#		B L1 Size
-#		B History Size
+# 		PAg L1 Size
+#		PAg History Size
+#		PAp L1 Size
+#		PAp History Size
 #		Meta SIze
 #		Run-ID --> the name will be appended to the end of the output file name
-# A_L1, A_Hist, B_L1, B_Hist, Meta, Run-ID
+# 
+#		<PAg L1>, <PAg History>, <PAp L1>, <PAp Histor>, <Meta Size>, <Run-ID name>
 
 
 do_sim_run 8 8 8 8 128 "test"
+do_sim_run 16 16 16 16 1024 "huge"
+
 
 
 
