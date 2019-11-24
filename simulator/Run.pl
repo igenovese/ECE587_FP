@@ -112,32 +112,32 @@ EOF
 
 
 sub main {
-	print "----------------------------------------------\n";
-	print "RUN PEARL SCRIPT\n\n";
+	#print "----------------------------------------------\n";
+	#print "RUN PEARL SCRIPT\n\n";
 
 	###########################################################
-	print "Run.pl: Init\n";
+	#print "Run.pl: Init\n";
 	&init();			# reads environment variables, inits tables
 	
 	###########################################################
-	print "Run.pl: Parse args\n";
+	#print "Run.pl: Parse args\n";
 	&parse_args();
 	
 	###########################################################
-	print "Run.pl Read db\n";
+	#print "Run.pl Read db\n";
 	&read_db();
 	
 	###########################################################
-	print "Run.pl: List benches\n";
+	#print "Run.pl: List benches\n";
 	&list_benches()
 		if (defined $print_binaries && $print_binaries);
 	
 	###########################################################
-	print "Run.pl: Check vars\n";
+	#print "Run.pl: Check vars\n";
 	&check_vars();		# checks setting of $DIRECTORY, etc.
 	
 	###########################################################
-	print "Run.pl: Change directory $DIRECTORY\n";
+	#print "Run.pl: Change directory $DIRECTORY\n";
 	chdir "$DIRECTORY";
 	
 	$RUN = " \U$RUN\E ";	# uppercase
@@ -155,7 +155,7 @@ sub main {
         &install_and_run(@benchmarks);
 
 	#########################################3
-	print "End of Run Script\n";
+	#print "End of Run Script\n";
 }
 
 ############################################################################
@@ -167,7 +167,7 @@ sub main {
 sub install_and_run
 {
 	##########################################
-    print "Run.pl: install_and_run\n";
+    #print "Run.pl: install_and_run\n";
 	##########################################
 
 	local(@benchmarks) = @_;
@@ -211,7 +211,7 @@ sub install_and_run
 		&vprint("Pre-run $benchmark\n");
 		if (defined $prerun[$i]) {
 			########################
-			print "Pre-run cmd: $prerun[$i]\n";
+			#print "Pre-run cmd: $prerun[$i]\n";
 			##################################
 			&vprint("$prerun[$i]\n");
 			system $prerun[$i];
@@ -269,7 +269,7 @@ sub install_and_run
             }
             if (defined $postrun[$i]) {
                 ##################################
-				print "Postrun $1: $postrun[$1]\n"; # check postrun
+				#print "Postrun $1: $postrun[$1]\n"; # check postrun
 				##################################
 				
 				# Commented these out to prevent it from deleting the files
@@ -279,8 +279,8 @@ sub install_and_run
             unlink "$loc";
 	} # end foreach
     } 
-
-	print "End of install_and_run\n"
+	#######################################
+	#print "End of install_and_run\n"
 }
 
 sub InstallAndRun
@@ -355,7 +355,8 @@ sub InstallAndRun
 			system("$cp $outfile Out/$outfile.$suffix");
 		}
 		if (defined $postrun) {
-			print "InstallAndRun: postrun $postrun\n"
+			###########################################
+			#print "InstallAndRun: postrun $postrun\n"
 			&vprint("$postrun\n");
 			system $postrun;
 		}
@@ -501,7 +502,7 @@ sub parse_args {
 sub read_db {
 	if (defined $BENCHDB) {
 		if (-f $BENCHDB) {
-			&vprint("reading benchmark database $BENCHDB\n");
+			#&vprint("reading benchmark database $BENCHDB\n");
 			do "$BENCHDB"
 				|| &mydie ("Error in benchmark database $BENCHDB\n$@");
 		}
