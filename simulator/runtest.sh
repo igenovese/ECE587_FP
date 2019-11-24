@@ -9,13 +9,13 @@ DEBUG="true"
 # Predictor A = PAg
 A_L1_SIZE=4 									# L1 SIZE = N
 A_HIST_SIZE=8									# HIST SIZE = W
-A_L2_SIZE=$((2**($A_L1_SIZE+$A_HIST_SIZE)))		# L2 SIZE = 2^(N+W)
+A_L2_SIZE=$((2**$A_HIST_SIZE))
 A_XOR=0
 
 # Predictor B = PAp
 B_L1_SIZE=8		# L1 SIZE = N
 B_HIST_SIZE=16	# L2 SIZE = W
-B_L2_SIZE=$((2**$B_HIST_SIZE))
+B_L2_SIZE=$((2**($B_L1_SIZE+$B_HIST_SIZE)))		# L2 SIZE = 2^(N+W)
 B_XOR=0
 
 # Meta Predictor
@@ -103,9 +103,11 @@ function run_simulations {
 function do_sim_run {
 	A_L1_SIZE=$1
 	A_HIST_SIZE=$2
+	A_L2_SIZE=$((2**$A_HIST_SIZE))
 	A_XOR=$3
 	B_L1_SIZE=$4
 	B_HIST_SIZE=$5
+	B_L2_SIZE=$((2**($B_L1_SIZE+$B_HIST_SIZE)))	
 	B_XOR=$6
 	META_SIZE=$7
 	NAME="PAG-$1-$2-$3_PAP-$4-$5-$6_$7"
@@ -151,8 +153,8 @@ sleep 1
 do_sim_run 8 8 0 4 4 0 1024
 
 # Have a small PAp and see how performance changes as the PAg increases in size
-#do_sim_run 2 2 0 2 2 0 1024
-#do_sim_run 2 2 0 2 2 0 1024 
+do_sim_run 2 2 0 2 2 0 1024
+ 
 
 
 
