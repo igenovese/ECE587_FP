@@ -2,7 +2,7 @@
 
 
 # Set to true to enable screen output, false to write to file
-DEBUG="false"
+DEBUG="true"
 
 # Branch predictor
 ########################################################################################
@@ -35,10 +35,10 @@ META_SIZE=32
 #ARGS="${ARGS} -bpred:2lev_comb $A_L1_SIZE $A_L2_SIZE $A_HIST_SIZE $A_XOR $B_L1_SIZE $B_L2_SIZE $B_HIST_SIZE $B_XOR $META_SIZE" 
 
 function make_sim_args {
-	ARGS="-fastfwd 1000000"
+	ARGS="-fastfwd 100"
 
 	# Set the max number of instructions
-	ARGS=" -max:inst 1000000"
+	ARGS="${ARGS} -max:inst 1000000"
 
 	ARGS="${ARGS} -bpred 2lev_comb"	
 	ARGS="${ARGS} -bpred:2lev_comb $A_L1_SIZE $A_L2_SIZE $A_HIST_SIZE $A_XOR $B_L1_SIZE $B_L2_SIZE $B_HIST_SIZE $B_XOR $META_SIZE" 
@@ -70,14 +70,14 @@ function run_simulations {
 		./Run.pl -db ./bench.db -dir results/gcc -benchmark gcc -sim $PWD/ss3/sim-outorder -args "$ARGS"	
 	else
 		# Run simulator
-		./Run.pl -db ./bench.db -dir results/go  -benchmark go -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_GO 
+		#./Run.pl -db ./bench.db -dir results/go  -benchmark go -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_GO 
 		./Run.pl -db ./bench.db -dir results/gcc -benchmark gcc -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_GCC 
-		./Run.pl -db ./bench.db -dir results/m88ksim -benchmark m88ksim -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_M88KSIM 
-		./Run.pl -db ./bench.db -dir results/li -benchmark li -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_LI 
-		./Run.pl -db ./bench.db -dir results/ijpeg -benchmark ijpeg -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_IJPEG
-		./Run.pl -db ./bench.db -dir results/perl -benchmark perl -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_PEARL 
-		./Run.pl -db ./bench.db -dir results/vortex -benchmark vortex -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_VORTEX 
-		./Run.pl -db ./bench.db -dir results/fpppp -benchmark fpppp -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_FPPPP 
+		#./Run.pl -db ./bench.db -dir results/m88ksim -benchmark m88ksim -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_M88KSIM 
+		#./Run.pl -db ./bench.db -dir results/li -benchmark li -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_LI 
+		#./Run.pl -db ./bench.db -dir results/ijpeg -benchmark ijpeg -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_IJPEG
+		#./Run.pl -db ./bench.db -dir results/perl -benchmark perl -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_PEARL 
+		#./Run.pl -db ./bench.db -dir results/vortex -benchmark vortex -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_VORTEX 
+		#./Run.pl -db ./bench.db -dir results/fpppp -benchmark fpppp -sim $PWD/ss3/sim-outorder -args "$ARGS" 2> $OUTFILE_FPPPP 
 	fi	
 }
 ###################################################################################################################
@@ -103,16 +103,21 @@ function run_simulations {
 function do_sim_run {
 	A_L1_SIZE=$1
 	A_HIST_SIZE=$2
-	B_L1_SIZE=$3
-	B_HIST_SIZE=$4
-	META_SIZE=$5
-	RUN=$6
+	A_XOR=$3
+	B_L1_SIZE=$4
+	B_HIST_SIZE=$5
+	B_XOR=$6
+	META_SIZE=$7
+	NAME="PAG-$1-$2-$3_PAP-$4-$5-$6_$7"
 
 	echo "-----------------------------------------------------------------------------------------------------------------"
-	echo "Run ID: $6 PAp: L1 = $A_L1_SIZE, HIST = $A_HIST_SIZE  PAg: L1 = $B_L1_SIZE, HIST = $B_HIST_SIZE  META: $META_SIZE "
+	echo "Run ID: $NAME"
+	echo "PAp: L1 = $A_L1_SIZE, HIST = $A_HIST_SIZE, XOR = $A_XOR"  
+	echo "PAg: L1 = $B_L1_SIZE, HIST = $B_HIST_SIZE XOR = $B_XOR"
+	echo "META: $META_SIZE "
 
 	make_sim_args
-	make_file_names $6
+	make_file_names $NAME
 	run_simulations
 }
 
@@ -140,11 +145,26 @@ sleep 1
 #		Meta SIze
 #		Run-ID --> the name will be appended to the end of the output file name
 # 
-#		<PAg L1>, <PAg History>, <PAp L1>, <PAp Histor>, <Meta Size>, <Run-ID name>
+#		<PAg L1>, <PAg History>, <PAg XOR>,  <PAp L1>, <PAp History>, <PAp XOR>, <Meta Size>, <Run-ID name>
+
+# PAG N=8 W=8, PAP N=4 W=4, Meta=1024
+do_sim_run 8 8 0 4 4 0 1024
+
+# Have a small PAp and see how performance changes as the PAg increases in size
+#do_sim_run 2 2 0 2 2 0 1024
+#do_sim_run 2 2 0 2 2 0 1024 
 
 
-do_sim_run 8 8 8 8 128 "test"
-do_sim_run 16 16 16 16 1024 "huge"
+
+
+
+
+
+#
+#do_sim_run 8 8 0 8 8 0 128 "test"
+#do_sim_run 16 16 16 16 1024 "huge"
+
+
 
 
 
