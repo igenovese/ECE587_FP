@@ -589,12 +589,14 @@ return tlb_miss_lat;
 /* register simulator-specific options */
 void sim_reg_options(struct opt_odb_t *odb)
 {
+#if 0
 opt_reg_header(odb,
 		"sim-outorder: This simulator implements a very detailed out-of-order issue\n"
 		"superscalar processor with a two-level memory system and speculative\n"
 		"execution support.  This simulator is a performance simulator, tracking the\n"
 		"latency of all pipeline operations.\n"
 );
+#endif
 
 /* instruction limit */
 
@@ -612,6 +614,7 @@ opt_reg_string_list(odb, "-ptrace",
 		ptrace_opts, /* arr_sz */2, &ptrace_nelt, /* default */NULL,
 		/* !print */FALSE, /* format */NULL, /* !accrue */FALSE);
 
+#if 0
 opt_reg_note(odb,
 		"  Pipetrace range arguments are formatted as follows:\n"
 		"\n"
@@ -631,6 +634,7 @@ opt_reg_note(odb,
 		"                -ptrace UXXE.trc :\n"
 		"                -ptrace FOOBAR.trc @main:+278\n"
 );
+#endif
 
 /* ifetch options */
 
@@ -648,7 +652,7 @@ opt_reg_int(odb, "-fetch:speed",
 		/* print */TRUE, /* format */NULL);
 
 /* branch predictor options */
-
+#if 0
 opt_reg_note(odb,
 		"  Branch predictor configuration examples for 2-level predictor:\n"
 		"    Configurations:   N, M, W, X\n"
@@ -664,6 +668,7 @@ opt_reg_note(odb,
 		"      gshare  : 1, W, 2^W, 1\n"
 		"  Predictor `comb' combines a bimodal and a 2-level predictor.\n"
 );
+#endif
 
 opt_reg_string(odb, "-bpred",
 		"branch predictor type {nottaken|taken|perfect|bimod|2lev|comb}",
@@ -769,6 +774,7 @@ opt_reg_string(odb, "-cache:dl1",
 		&cache_dl1_opt, "dl1:128:32:4:l",
 		/* print */TRUE, NULL);
 
+#if 0
 opt_reg_note(odb,
 		"  The cache config parameter <config> has the following format:\n"
 		"\n"
@@ -783,6 +789,7 @@ opt_reg_note(odb,
 		"    Examples:   -cache:dl1 dl1:4096:32:1:l\n"
 		"                -dtlb dtlb:128:4096:32:r\n"
 );
+#endif
 
 opt_reg_int(odb, "-cache:dl1lat",
 		"l1 data cache hit latency (in cycles)",
@@ -804,6 +811,7 @@ opt_reg_string(odb, "-cache:il1",
 		&cache_il1_opt, "il1:512:32:1:l",
 		/* print */TRUE, NULL);
 
+#if 0
 opt_reg_note(odb,
 		"  Cache levels can be unified by pointing a level of the instruction cache\n"
 		"  hierarchy at the data cache hiearchy using the \"dl1\" and \"dl2\" cache\n"
@@ -817,6 +825,7 @@ opt_reg_note(odb,
 		"      -cache:il1 dl1\n"
 		"      -cache:dl1 ul1:256:32:1:l -cache:dl2 ul2:1024:64:2:l\n"
 );
+#endif
 
 opt_reg_int(odb, "-cache:il1lat",
 		"l1 instruction cache hit latency (in cycles)",
@@ -2030,13 +2039,9 @@ for (link = ready_queue; link != NULL; link = link->next)
 
 /* insert ready node into the ready list using ready instruction scheduling
 policy; currently the following scheduling policy is enforced:
-
  memory and long latency operands, and branch instructions first
-
 then
-
  all other instructions, oldest instructions first
-
 this policy works well because branches pass through the machine quicker
 which works to reduce branch misprediction latencies, and very long latency
 instructions (such loads and multiplies) get priority since they are very
@@ -3952,14 +3957,12 @@ and input and output dependence chains are updated accordingly */
 			/* for load/stores:
 		 idep #0     - store operand (value that is store'ed)
 		 idep #1, #2 - eff addr computation inputs (addr of access)
-
 	 resulting RUU/LSQ operation pair:
 		 RUU (effective address computation operation):
  idep #0, #1 - eff addr computation inputs (addr of access)
 		 LSQ (memory access operation):
  idep #0     - operand input (value that is store'd)
  idep #1     - eff addr computation result (from RUU op)
-
 	 effective address computation is transfered via the reserved
 	 name DTMP
 			 */
